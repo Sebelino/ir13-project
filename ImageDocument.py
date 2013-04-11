@@ -13,14 +13,19 @@ class ImageDocument:
     # how much text will be in this string depends on the scraper
     surrounding_text = ''
 
-    # image can be used in different contexts
-    #self.captions = []
+    # image can be used in different contexts.
+    # every context can have an alt text, a caption or thelike.
+    # all these strings go in here, concatenated, as one description
+    description = ''
 
-    # same as for captions
-    #self.alt_texts = []
+    # title of the image
+    # if an image has a separate title then this is very likely to
+    # contain a lot of information about the image's content
+    title = ''
 
     # todo: the structure of this data needs to be determined.
-    # also, it needs to be clear which dat
+    # also, it needs to be clear which data
     def __init__(self, url, text):
         self.url = url
         self.surrounding_text = text
+
