@@ -16,9 +16,23 @@ class Query:
 		"""
 		return self.solr.search(term)
 
-# todo: everything
+	def optimize(self):
+		"""
+		Defragmentation (I think)
+		"""
+		self.solr.optimize()
+
+	def delete(self, imageurl):
+		"""
+		Delete a document in solr by it's image url
+		"""
+		self.solr.delete(url=imageurl)
+
+# todo: a lot
 
 if __name__ == '__main__':
 	q = Query('http://localhost:8983/solr/')
-	for res in q.simple_search('Dell'):
-		print(res['name'])
+	while(True):
+		term = raw_input('What do you want to search for?\n')
+		for res in q.simple_search(term):
+				print(res['name'])
