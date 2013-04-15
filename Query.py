@@ -60,7 +60,7 @@ class Query:
 
 # todo: a lot
 
-if __name__ == '__main__':
+if __name__ == '__main__': 
 	q = Query('http://localhost:8983/solr/')
 	doc = Document("1234ABC", "Dell Microwave Deluxe", "DELL")
 	q.doc_add(doc)
