@@ -10,6 +10,9 @@ class ImageDocument:
 
     url = ''
 
+    # urls of the pages this image was found on
+    source_urls = []
+
     # how much text will be in this string depends on the scraper
     surrounding_text = ''
 
@@ -25,7 +28,9 @@ class ImageDocument:
 
     # todo: the structure of this data needs to be determined.
     # also, it needs to be clear which data
-    def __init__(self, url, text):
+    def __init__(self, url, source_url, text):
         self.url = url
+        self.source_urls = [source_url]
         self.surrounding_text = text
+
 

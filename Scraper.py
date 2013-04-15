@@ -1,3 +1,5 @@
+# /usr/bin/env python
+
 import urlparse
 
 __author__ = 'Daan Wynen'
@@ -17,6 +19,10 @@ BLACKLIST = [
     'thumb/4/4a/Commons-logo.svg'
 ]
 
+SURROUNDINGSIZE_THRESHOLD = 200
+
+BROWSER_USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:20.0) Gecko/20100101 Firefox/20.0"
+
 
 class Scraper:
     def __init__(self, url):
@@ -32,26 +38,94 @@ class Scraper:
 
         # save the raw html of the page but as unicode
         self.full_text = self.soup.renderContents(None)
-
+        
         # lso save a stripped down version for indexing.
-        self.plaintext = html2text.html2text(self.full_text)
+        self.plaintext = html2text.html2text(self.full_text)        
 
         #print(self.plaintext)
 
     def get_documents(self):
         """
         Returns every image document for this page.
-        todo: for now the surrounding text is just te complete website's plaintext.
-        this should be done more cleverly...
         """
-        image_urls = [urlparse.urljoin(self.url, image["src"]) for image in self.soup.findAll("img")]
-        return [ImageDocument.ImageDocument(url, self.plaintext) for url in image_urls]
+        result = []
+        imgs = self.soup.findAll("img")
+
+        print("found {0} <img> tags on the page.".format(len(imgs)))
+        
+        for image_node in imgs:
+            full_url = urlparse.urljoin(self.url, image_node["src"])
+
+            if self.should_ignore(full_url):
+                continue
+            
+            t = self.extract_surrounding_text(image_node)
+            caption = self.extract_caption(image_node)
+            alt_text = self.extract_alttext(image_node)
+            im_doc = ImageDocument.ImageDocument(full_url, self.url, t)
+            if caption:
+                im_doc.description = caption
+                if alt_text:
+                    im_doc += " "+alt_text
+            elif alt_text:
+                im_doc.description = alt_text
+            title = self.extract_title(image_node)
+
+            result.append(im_doc)
+
+        return result
 
 
-class WikipediaScraper:
+    def extract_title(self, image_node):
+        # leave this to wikiscraper where we know hot to do this.
+        # for now at least
+        pass
+        
+    
+    def extract_surrounding_text(self, image_node):
+        """
+        @type image_node: Node
+        """
+        text_node = image_node
+        
+        while text_node!=self.soup:
+            text_node = text_node.parent
+            text = text_node.renderContents(None)
+            text = html2text.html2text(text)
+            if len(text.split()) >= SURROUNDINGSIZE_THRESHOLD:
+                print('length of surrounding_text: {0}'.format(len(text.split())))
+                return text            
+
+        # we hit the root node, there will be no more text to index...
+        return text
+
+        
+    def extract_caption(self, img):
+        # don't try to find captions in random pages for now,
+        # leave that to the wikipedia scraper
+        return None
+    
+
+    def extract_alttext(self, img):
+        try:
+            return img['alt']
+        except:
+            return None
+
+    def should_ignore(self, url):
+        for string in BLACKLIST:
+            if url.find(string) != -1:
+                return True
+        return False
+
+
+class WikipediaScraper(Scraper):
     def __init__(self, url=WIKIPEDIA_EN_RANDOM):
-        req = urllib2.Request(url, headers={
-            'User-Agent': "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:20.0) Gecko/20100101 Firefox/20.0"})
+
+        if url==WIKIPEDIA_EN_RANDOM:
+            print('visit random wikipedia page')
+    
+        req = urllib2.Request(url, headers={'User-Agent': BROWSER_USER_AGENT})
         site = urllib2.urlopen(req)
         self.url = site.geturl()
         if url != self.url:
@@ -69,29 +143,53 @@ class WikipediaScraper:
         # save the raw html of the page but as unicode
         self.full_text = self.soup.renderContents(None)
 
-        # lso save a stripped down version for indexing.
+        # also save a stripped down version for indexing.
         self.plaintext = html2text.html2text(self.full_text)
 
         #print(self.plaintext)
 
-    def get_documents(self):
-        """
-        Returns every image document for this page.
-        todo: for now the surrounding text is just te complete website's plaintext.
-        this should be done more cleverly...
-        """
-        image_urls = [urlparse.urljoin(self.url, image["src"]) for image in self.soup.findAll("img")]
-        return [ImageDocument.ImageDocument(url, self.plaintext) for url in image_urls if not self.should_ignore(url)]
+    def extract_caption(self, image_node):
 
-    def should_ignore(self, url):
-        for string in BLACKLIST:
-            if url.find(string) != -1:
-                return True
-        return False
+        print("extracting image caption from wikipedia image")
+    
+        while (not dict(image_node.attrs).has_key('class') \
+          or image_node['class']!='thumbinner')\
+          and image_node.parent!=None:
+            image_node = image_node.parent
+
+        # this probably means we didn't find a proper image but some icon
+        # and then we navigated up to the document root aaaannnd... well...
+        # let's pretend nobody saw that... :D
+        if image_node is None or image_node.parent==None:
+            return None
+
+        n=image_node.find('div', {'class':'thumbcaption'})
+        if not n:
+            return None
+        
+        # most (all?) wikipedia image captions have this annoying magnify link...
+        m=n.find('div', {'class':'magnify'})
+        if m:
+            m.replaceWith("")
+
+        return html2text.html2text(n.renderContents(None))
 
 
-if __name__ == '__main__':
+def main():
+    print('scraping ONE page')
     # s = Scraper('http://www.csc.kth.se/utbildning/kth/kurser/DD2427/')
-    s = WikipediaScraper('http://en.wikipedia.org/wiki/Brooklyn_Technical_High_School')
+    #s = WikipediaScraper('http://en.wikipedia.org/wiki/Brooklyn_Technical_High_School')
+    s= WikipediaScraper()
     for i in s.get_documents():
+        print('\n\n===============================================')
         print(i.url)
+        print(i.source_urls[0])
+        print(i.surrounding_text)
+        print(i.description)
+        print(i.title)
+     
+        
+if __name__ == '__main__':
+    main()
+else:
+    print('loaded, but not in __main__')
