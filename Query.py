@@ -39,7 +39,7 @@ class Query:
 
 	def optimize(self):
 		"""
-		Defragmentation (I think)
+		Defragmentation (I think) 
 		"""
 		#old code for pysolr
 		#self.solr.optimize()
