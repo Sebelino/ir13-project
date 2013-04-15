@@ -3,6 +3,7 @@ __author__ = 'Oskar Bodemyr'
 
 #import pysolr
 import sunburnt
+import ImageDocument
 
 class Document:
 	"""
@@ -20,7 +21,6 @@ class Document:
 		self.price = 1234
 		self.popularity = 15
 		self.instock = True
-
 
 class Query:
 	"""
@@ -51,13 +51,19 @@ class Query:
 		#old code from pysolr
 		#self.solr.delete(url=imageurl)
 
+	def doc_add(self, doc):
+		"""
+		Add a document to solr
+		"""
+		self.solr_interface.add(doc)
+		self.solr_interface.commit()
+
 # todo: a lot
 
 if __name__ == '__main__':
 	q = Query('http://localhost:8983/solr/')
-	doc = Document("123ABC", "Dell Studio XPS", "DELL")
-	q.solr_interface.add(doc)
-	q.solr_interface.commit()
+	doc = Document("1234ABC", "Dell Microwave Deluxe", "DELL")
+	q.doc_add(doc)
 	
 	while(True):
 		term = raw_input('What do you want to search for?\n')
