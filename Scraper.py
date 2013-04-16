@@ -21,7 +21,7 @@ BLACKLIST = [
     'Disambig_gray.svg.png'
 ]
 
-SURROUNDINGSIZE_THRESHOLD = 50
+SURROUNDING_TEXT_TARGET = 200
 
 BROWSER_USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:20.0) Gecko/20100101 Firefox/20.0"
 
@@ -53,18 +53,24 @@ class Scraper:
         """
         Returns every image document for this page.
         """
-        result = []
         imgs = self.soup.findAll("img")
 
         print("found {0} <img> tags on the page.".format(len(imgs)))
 
+        # replace all images by their respective urls
+        for image_node in imgs:
+            image_node.replaceWith(image_node["src"])
+
+        flat_text = self.strip_html(self.soup.renderContents(None))
+
+        result = []
         for image_node in imgs:
             full_url = urlparse.urljoin(self.url, image_node["src"])
 
             if self.should_ignore(full_url):
                 continue
 
-            t = self.extract_surrounding_text(image_node)
+            t = self.extract_surrounding_text(image_node, flat_text)
             caption = self.extract_caption(image_node)
             alt_text = self.extract_alttext(image_node)
             im_doc = ImageDocument.ImageDocument(full_url, self.url, t)
@@ -85,23 +91,37 @@ class Scraper:
         # for now at least
         pass
 
-    def extract_surrounding_text(self, image_node):
+    def extract_surrounding_text(self, image_node, flat_text):
         """
         @type image_node: Node
         """
-        text_node = image_node
-        text = ''
 
-        while text_node != self.soup:
-            text_node = text_node.parent
-            text = text_node.renderContents(None)
-            text = MLStripper.strip_tags(text)
-            if len(text.split()) >= SURROUNDINGSIZE_THRESHOLD:
-                print('length of surrounding_text: {0}'.format(len(text.split())))
-                return text
+        current_url = image_node['src']
 
-        # we hit the root node, there will be no more text to index...
-        return text
+        components = flat_text.split(current_url)
+
+        # get teh text preceding and following the image
+        # this will discard information if the url occurred more than once.
+        # we don't like that so we pretend it didn't happen...
+        (pre, post) = components[0], components[1]
+
+        # split both
+        (pre, post) = pre.split(), post.split()
+
+        # how many words can we take from pre component
+        pre_len = min(len(pre), SURROUNDING_TEXT_TARGET/2)
+
+        # same for post component
+        post_len = min(len(post), SURROUNDING_TEXT_TARGET/2)
+
+        result_wordlist = pre[-pre_len:]+ post[:post_len]
+
+        # make a regular text from our words
+        result = ' '.join(result_wordlist)
+
+        return result
+
+
 
     def extract_caption(self, img):
         # don't try to find captions in random pages for now,
