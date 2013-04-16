@@ -11,6 +11,13 @@ import nltk
 from nltk.tag import _POS_TAGGER
 import sys
 
+
+# make sure we have the right tokenization data local
+# use default storage location for now
+# todo: maybe store this in a specified directory?
+nltk.download('maxent_treebank_pos_tagger')
+nltk.download('brown')
+
 NAMEEXCEPTIONS = [['star','wars']]
 XOFYXCEPTIONS = set(['lot','alot','kind','lame','lamer'])
 

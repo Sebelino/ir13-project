@@ -9,6 +9,7 @@ import urlparse
 from BeautifulSoup import BeautifulSoup
 import MLStripper
 import ImageDocument
+import Keywords
 
 WIKIPEDIA_EN_RANDOM = 'http://en.wikipedia.org/wiki/Special:Random'
 
@@ -33,17 +34,30 @@ class Scraper:
         req = urllib2.Request(url, headers={'User-Agent': BROWSER_USER_AGENT})
         site = urllib2.urlopen(req)
         content = site.read()
+        self.url = site.geturl()
+        if url != self.url:
+            print("was redirected to {0}".format(self.url))
+
         site.close()
 
         # build the soup first.
         # this lets us use its encoding detection mechanism to decode the page's content.
-        self.soup = BeautifulSoup(content)
+        self.soup = self.get_relevant_root(BeautifulSoup(content))
+
+        title_tag = self.soup.find('title')
+        if title_tag:
+            self.page_title = title_tag.renderContents(None)
+        else:
+            self.page_title = ''
 
         # save the raw html of the page but as unicode
         self.full_text = self.soup.renderContents(None)
 
         # also save a stripped down version for indexing.
         self.plaintext = self.strip_html(self.full_text)
+
+    def get_relevant_root(self, soup):
+        return soup
 
     def strip_html(self, html):
         result = MLStripper.strip_tags(html)
@@ -70,16 +84,21 @@ class Scraper:
             if self.should_ignore(full_url):
                 continue
 
-            t = self.extract_surrounding_text(image_node, flat_text)
+            surrounding_text = self.extract_surrounding_text(image_node, flat_text)
             caption = self.extract_caption(image_node)
             alt_text = self.extract_alttext(image_node)
-            im_doc = ImageDocument.ImageDocument(full_url, self.url, t)
+
+            keywords = Keywords.extract_keywords_grammar(surrounding_text)
+
+            im_doc = ImageDocument.ImageDocument(full_url, self.url, surrounding_text, self.page_title, keywords)
+
             if caption:
                 im_doc.description = caption
                 if alt_text:
                     im_doc += " " + alt_text
             elif alt_text:
                 im_doc.description = alt_text
+
             im_doc.title = self.extract_title(image_node)
 
             result.append(im_doc)
@@ -114,14 +133,12 @@ class Scraper:
         # same for post component
         post_len = min(len(post), SURROUNDING_TEXT_TARGET/2)
 
-        result_wordlist = pre[-pre_len:]+ post[:post_len]
+        result_wordlist = pre[-pre_len:] + post[:post_len]
 
         # make a regular text from our words
         result = ' '.join(result_wordlist)
 
         return result
-
-
 
     def extract_caption(self, img):
         # don't try to find captions in random pages for now,
@@ -142,20 +159,14 @@ class Scraper:
 
 
 class WikipediaScraper(Scraper):
+
+    def get_relevant_root(self, soup):
+        return soup.find('div', {"id": "content"})
+
     def __init__(self, url=WIKIPEDIA_EN_RANDOM):
         if url == WIKIPEDIA_EN_RANDOM:
             print('visit random wikipedia page')
-        req = urllib2.Request(url, headers={'User-Agent': BROWSER_USER_AGENT})
-        site = urllib2.urlopen(req)
-        self.url = site.geturl()
-        if url != self.url:
-            print("was redirected to {0}".format(self.url))
-        content = site.read()
-        site.close()
-        self.soup = BeautifulSoup(content)
-        self.soup = self.soup.find('div', {"id": "content"})
-        self.full_text = self.soup.renderContents(None)
-        self.plaintext = MLStripper.strip_tags(self.full_text)
+        Scraper.__init__(self, url)
 
     def extract_caption(self, image_node):
 
@@ -193,10 +204,12 @@ def main():
     s = WikipediaScraper()
     for i in s.get_documents():
         print('\n\n===============================================')
-        print(i.url)
-        print(i.source_urls[0])
-        print(i.description)
-        print(i.title)
+        print('Url: {0}'.format(i.url))
+        print('Source url: {0}'.format(i.source_urls[0]))
+        print('Image title: {0}'.format(i.title))
+        print('page title: {0}'.format(i.page_titles[0]))
+        print('Description: {0}'.format(i.description))
+        print('Keywords: {0}'.format(';'.join(i.keywords)))
         print('==========================')
         print(i.surrounding_text.encode('utf-8', 'ignore'))
         print('===============================================\n\n')

@@ -26,11 +26,16 @@ class ImageDocument:
     # contain a lot of information about the image's content
     title = ''
 
+    # titles of the pages the image was found on
+    page_titles = []
+
     # todo: the structure of this data needs to be determined.
     # also, it needs to be clear which data
-    def __init__(self, url, source_url, text):
+    def __init__(self, url, source_url, text, page_title, keywords):
         self.url = url
         self.source_urls = [source_url]
         self.surrounding_text = text
+        self.page_titles.append(page_title)
+        self.keywords = keywords
 
 
