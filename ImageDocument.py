@@ -21,11 +21,6 @@ class ImageDocument:
     # all these strings go in here, concatenated, as one description
     description = ''
 
-    # title of the image
-    # if an image has a separate title then this is very likely to
-    # contain a lot of information about the image's content
-    title = ''
-
     # titles of the pages the image was found on
     page_titles = []
 

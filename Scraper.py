@@ -99,16 +99,9 @@ class Scraper:
             elif alt_text:
                 im_doc.description = alt_text
 
-            im_doc.title = self.extract_title(image_node)
-
             result.append(im_doc)
 
         return result
-
-    def extract_title(self, image_node):
-        # leave this to WikipediaScraper where we know how to do this.
-        # for now at least
-        pass
 
     def extract_surrounding_text(self, image_node, flat_text):
         """
