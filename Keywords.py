@@ -4,7 +4,7 @@ Keywords
 Used to extract keywords from tweets (rather greedy)
 Includes method grammar: extract_keywords_grammer
 
-@author: 0tchii, Xantoz
+@author: 0tchii (Oskar Bodemyr), Xantoz
 '''
 
 import nltk
