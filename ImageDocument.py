@@ -14,12 +14,12 @@ class ImageDocument:
     source_urls = []
 
     # how much text will be in this string depends on the scraper
-    surrounding_text = ''
+    surrounding_text = []
 
     # image can be used in different contexts.
     # every context can have an alt text, a caption or thelike.
     # all these strings go in here, concatenated, as one description
-    description = ''
+    description = []
 
     # titles of the pages the image was found on
     page_titles = []
@@ -39,16 +39,15 @@ class ImageDocument:
         source_urls = list(s.source_urls)
         page_titles = list(s.page_titles)
         url = s.url
-        description = s.description
-        surrounding_text = s.surrounding_text
+        description = list(s.description)
+        surrounding_text = list(s.surrounding_text)
         return cls(url, source_urls, surrounding_text, description, page_titles)
         
     def merge(self, otherDoc):
-        self.source_urls + otherDoc.source_urls
-        self.page_titles + otherDoc.page_titles
-        self.surrounding_text + otherDoc.surrounding_text
-        self.description + otherDoc.description
-        self.page_titles + otherDoc.page_titles
+        self.source_urls += otherDoc.source_urls
+        self.page_titles += otherDoc.page_titles
+        self.surrounding_text += otherDoc.surrounding_text
+        self.description += otherDoc.description
 
 class Struct:
     def __init__(self, **kwargs):

@@ -61,7 +61,7 @@ class Query:
 			self.solr_interface.add(doc)
 		else:
 			print tempdict
-			doc2 = ImageDocument.from_dictionary(tempdict)
+			doc2 = ImageDocument.from_dictionary(tempdict[0])
 			doc.merge(doc2)
 			self.solr_interface.add(doc)
 		self.solr_interface.commit()
@@ -73,7 +73,7 @@ if __name__ == '__main__':
 	d = q.solr_interface.query(url='hajsdhflf').execute()
 	print d
 
-	doc1 = ImageDocument("testurl", ["tsource_url1"], "text1", "description1", ["title1"])
+	doc1 = ImageDocument("testurl", ["tsource_url1"], ["text1"], ["description1"], ["title1"])
 	q.doc_add(doc1)
-	doc2 = ImageDocument("testurl", ["source_url2"], "text2", "description2", ["titel2"])
+	doc2 = ImageDocument("testurl", ["source_url2"], ["text2"], ["description2"], ["titel2"])
 	q.doc_add(doc2)
