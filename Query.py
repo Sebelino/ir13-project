@@ -7,7 +7,7 @@ from ImageDocument import ImageDocument
 
 class Document:
 	"""
-	Just a simple test class to use with the Solr example
+	Just a simple test class to use with the Solr example 
 	"""
 	def __init__(self, nr, name, manu):
 		self.id = nr
@@ -35,7 +35,7 @@ class Query:
 		Simply search for a term and look for it in solr
 		"""
 		#return self.solr.search(term)
-		return self.solr_interface.query(name=term).execute()
+		return self.solr_interface.query(surrounding_text=term).execute()
 
 	def optimize(self):
 		"""
@@ -61,11 +61,12 @@ class Query:
 # todo: a lot
 
 if __name__ == '__main__': 
-	q = Query('http://localhost:8983/solr/')
-	doc = Document("1234ABC", "Dell Microwave Deluxe", "DELL")
-	q.doc_add(doc)
+	q = Query('http://130.229.135.163:8080/solr/test2')
+	#doc = Document("1234ABC", "Dell Microwave Deluxe", "DELL")
+	#q.doc_add(doc)
 	
 	while(True):
 		term = raw_input('What do you want to search for?\n')
 		for res in q.simple_search(term):
-			print res['name']
+			if len(res)>0:
+				print res['url']
