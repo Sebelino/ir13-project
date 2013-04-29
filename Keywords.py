@@ -4,7 +4,7 @@ Keywords
 Used to extract keywords from tweets (rather greedy)
 Includes method grammar: extract_keywords_grammer
 
-@author: 0tchii, Xantoz
+@author: 0tchii (Oskar Bodemyr), Xantoz
 '''
 
 import nltk
@@ -91,7 +91,7 @@ def extract_keywords_grammar(text):
         if s.node == "Noun" or s.node == "Name":
             if s[0][0] not in skiplistsingular:
                 words.append(s[0][0])                  
-    return words
+    return list(set(words))
 
 if __name__ == '__main__':
     text = True
