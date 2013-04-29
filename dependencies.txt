@@ -1,3 +1,4 @@
 BeautifulSoup
 nltk
 sunburnt
+numpy # this may require installing some dependencies on the root system if using virtualenv.

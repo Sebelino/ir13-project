@@ -69,7 +69,7 @@ class Scraper:
         """
         imgs = self.soup.findAll("img")
 
-        print("found {0} <img> tags on the page.".format(len(imgs)))
+        print("Found {0} <img> tags on the page.".format(len(imgs)))
 
         # replace all images by their respective urls
         for image_node in imgs:
@@ -199,10 +199,10 @@ def main():
         print('\n\n===============================================')
         print('Url: {0}'.format(i.url))
         print('Source url: {0}'.format(i.source_urls[0]))
-        print('Image title: {0}'.format(i.title))
+#        print('Image title: {0}'.format(i.title))
         print('page title: {0}'.format(i.page_titles[0]))
-        print('Description: {0}'.format(i.description))
-        print('Keywords: {0}'.format(';'.join(i.keywords)))
+        print(u'Description: {0}'.format(i.description))
+        print(u'Keywords: {0}'.format(';'.join(i.keywords)))
         print('==========================')
         print(i.surrounding_text.encode('utf-8', 'ignore'))
         print('===============================================\n\n')
