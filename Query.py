@@ -59,21 +59,25 @@ class Query:
 
 		if len(tempdict) == 0:
 			self.solr_interface.add(doc)
+			self.solr_interface.commit()
+
 		else:
-			print tempdict
 			doc2 = ImageDocument.from_dictionary(tempdict[0])
-			doc.merge(doc2)
-			self.solr_interface.add(doc)
+			if not doc.source_urls[0] in doc2.source_urls:
+				doc.merge(doc2)
+				self.solr_interface.add(doc)
+				self.solr_interface.commit()
 		self.solr_interface.commit()
+
+
+		
 
 # todo: a lot
 
 if __name__ == '__main__': 
 	q = Query('http://localhost:8080/solr/test2')
-	d = q.solr_interface.query(url='hajsdhflf').execute()
-	print d
 
 	doc1 = ImageDocument("testurl", ["tsource_url1"], ["text1"], ["description1"], ["title1"])
 	q.doc_add(doc1)
-	doc2 = ImageDocument("testurl", ["source_url2"], ["text2"], ["description2"], ["titel2"])
+	doc2 = ImageDocument("testurl", ["source_url3"], ["text3"], ["description3"], ["titel3"])
 	q.doc_add(doc2)
