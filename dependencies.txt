@@ -1,4 +1,3 @@
 BeautifulSoup
-html2text
-#pysolr
+nltk
 sunburnt
