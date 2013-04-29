@@ -55,18 +55,25 @@ class Query:
 		"""
 		Add a document to solr
 		"""
-		self.solr_interface.add(doc)
+		tempdict = self.solr_interface.query(url=doc.url).execute()
+
+		if len(tempdict) == 0:
+			self.solr_interface.add(doc)
+		else:
+			print tempdict
+			doc2 = ImageDocument.from_dictionary(tempdict)
+			doc.merge(doc2)
+			self.solr_interface.add(doc)
 		self.solr_interface.commit()
 
 # todo: a lot
 
 if __name__ == '__main__': 
-	q = Query('http://130.229.135.163:8080/solr/test2')
-	#doc = Document("1234ABC", "Dell Microwave Deluxe", "DELL")
-	#q.doc_add(doc)
-	
-	while(True):
-		term = raw_input('What do you want to search for?\n')
-		for res in q.simple_search(term):
-			if len(res)>0:
-				print res['url']
+	q = Query('http://localhost:8080/solr/test2')
+	d = q.solr_interface.query(url='hajsdhflf').execute()
+	print d
+
+	doc1 = ImageDocument("testurl", ["tsource_url1"], "text1", "description1", ["title1"])
+	q.doc_add(doc1)
+	doc2 = ImageDocument("testurl", ["source_url2"], "text2", "description2", ["titel2"])
+	q.doc_add(doc2)

@@ -26,11 +26,31 @@ class ImageDocument:
 
     # todo: the structure of this data needs to be determined.
     # also, it needs to be clear which data
-    def __init__(self, url, source_url, text, page_title, keywords):
+    def __init__(self, url, source_urls, surrounding_text, description, page_titles):
         self.url = url
-        self.source_urls = [source_url]
-        self.surrounding_text = text
-        self.page_titles.append(page_title)
-        self.keywords = keywords
+        self.source_urls = source_urls
+        self.surrounding_text = surrounding_text
+        self.description = description
+        self.page_titles = page_titles
 
+    @classmethod
+    def from_dictionary(cls, d):
+        s = Struct(**d)
+        source_urls = list(s.source_urls)
+        page_titles = list(s.page_titles)
+        url = s.url
+        description = s.description
+        surrounding_text = s.surrounding_text
+        return cls(url, source_urls, surrounding_text, description, page_titles)
+        
+    def merge(self, otherDoc):
+        self.source_urls + otherDoc.source_urls
+        self.page_titles + otherDoc.page_titles
+        self.surrounding_text + otherDoc.surrounding_text
+        self.description + otherDoc.description
+        self.page_titles + otherDoc.page_titles
+
+class Struct:
+    def __init__(self, **kwargs):
+        self.__dict__.update(kwargs)
 
