@@ -3,7 +3,7 @@ __author__ = 'Oskar Bodemyr'
 
 #import pysolr
 import sunburnt
-import ImageDocument
+from ImageDocument import ImageDocument
 
 class Document:
 	"""
