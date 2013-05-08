@@ -19,14 +19,14 @@ def scrape_documents(n):
 
 
 def retrieve_saved_documents(dumpfilename=DUMPFILE_NAME):
-    picklefile = open(DUMPFILE_NAME, "rb")
+    picklefile = open(dumpfilename, "rb")
     result = pickle.load(picklefile)
     picklefile.close()
     return result
 
 
 def save_documents(documents, dumpfilename=DUMPFILE_NAME):
-    picklefile = open(DUMPFILE_NAME, "wb")
+    picklefile = open(dumpfilename, "wb")
     pickle.dump(documents, picklefile)
     picklefile.close()
 

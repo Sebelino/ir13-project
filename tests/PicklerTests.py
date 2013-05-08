@@ -1,5 +1,6 @@
 #! /usr/bin/env python2.7
 from numpy.lib.utils import source
+import os
 
 import DocumentPickler
 import tempfile
@@ -48,6 +49,8 @@ class DocumentPicklerTests(unittest.TestCase):
         DocumentPickler.save_documents(docs, dumpfilename)
 
         docs = DocumentPickler.retrieve_saved_documents(dumpfilename)
+
+        os.remove(dumpfilename)
 
         for doc in docs:
             self.failUnless(isinstance(doc, ImageDocument))
