@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<solr persistent="true">
+  <cores defaultCoreName="ir13-imgsearch" adminPath="/admin/cores" zkClientTimeout="${zkClientTimeout:15000}" hostPort="8983" hostContext="solr">
+    <core schema="schema.xml" loadOnStartup="true" instanceDir="/home/sisten/irproject/solr/test1/" transient="false" name="test2" config="solrconfig.xml" dataDir="data"/>
+    <core schema="schema.xml" loadOnStartup="true" instanceDir="/home/sisten/irproject/solr/test3/" transient="false" name="test3" config="solrconfig.xml" dataDir="data"/>
+  </cores>
+</solr>
