@@ -1,10 +1,10 @@
 '''
 Keywords
 
-Used to extract keywords from tweets (rather greedy)
+Used to extract keywords (originally ment for tweets) (rather greedy)
 Includes method grammar: extract_keywords_grammer
 
-@author: 0tchii (Oskar Bodemyr), Xantoz
+@author: Oskar Bodemyr
 '''
 
 import nltk
@@ -19,7 +19,7 @@ nltk.download('maxent_treebank_pos_tagger')
 nltk.download('brown')
 
 def extract_keywords_grammar(text):
-    '''Uses chunks matching to identify keywords in a tweet. The code looks much nicer this way :P'''
+    '''Uses chunks matching to identify keywords in a tweet'''
 
     sequence = nltk.pos_tag(nltk.word_tokenize(text))
     if sequence == []:          # gets rid of all the 'Warning: parsing empty text' messages
@@ -27,6 +27,8 @@ def extract_keywords_grammar(text):
     sequence = map(lambda (a,b): (a.lower(),b), sequence)
     words = []
     skiplistsingular = []
+
+    '''Grammars to find words that usually are more important in a text'''
     grammar=''' Name: {(<NN>|<NNS>)(<NN>|<NNS>)+} 
                 Name2: {(<NNP>|<NNPS>)(<NNP>|<NNPS>)+}
                 Noun: {(((<NNP>|<NN>|<NNS>)<IN><DT>(<NNP>|<NN>|<NNS>))|((<JJ>|<JJR>)+(<NN>|<NNS>|<VBG>)+))}
@@ -43,6 +45,7 @@ def extract_keywords_grammar(text):
     def multiwords(t):
         return reduce(lambda x,y: x + " " + y, map(lambda (x,_1): x, t)) 
     
+    '''After grammar, checks the different categories to handle them accordingly'''
     for t in chunks.parse(sequence).subtrees():
         if t.node == "Noun":
             keys = multiwords(t)            
