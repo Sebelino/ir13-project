@@ -1,8 +1,15 @@
-import Document_Pickler
+#! /usr/bin/env python2.7
+
+import sys
+
+sys.path.append("./sunburnt")
+
+import DocumentPickler
 from Query import Query
 
-q = Query('http://localhost:8080/solr/test2');
-docs = Document_Pickler.retrieve_saved_documents();
-for doc in docs:
-	q.doc_add(doc)
+q = Query('http://localhost:8080/solr/test3')
+docs = DocumentPickler.retrieve_saved_documents()
+for idx, doc in enumerate(docs):
+    q.doc_add(doc)
+    print('successfully inserted document no. {0}'.format(idx + 1))
 

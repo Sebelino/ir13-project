@@ -26,7 +26,7 @@ class Query:
 	"""
 	Query-class for searching in solr. (Just trying pysolr really...)
 	"""
-	def __init__(self, solraddr = 'http://localhost:8983/solr/'):
+	def __init__(self, solraddr = 'http://localhost:8080/solr/'):
 		self.solr_interface = sunburnt.SolrInterface(solraddr)
 		#self.solr = pysolr.Solr(solraddr, timeout=10)
 

@@ -90,14 +90,21 @@ class Scraper:
 
             keywords = Keywords.extract_keywords_grammar(surrounding_text)
 
-            im_doc = ImageDocument.ImageDocument(full_url, self.url, surrounding_text, self.page_title, keywords)
-
+            description = ''
             if caption:
-                im_doc.description = caption
+                description = caption
                 if alt_text:
-                    im_doc += " " + alt_text
+                    description += " " + alt_text
             elif alt_text:
-                im_doc.description = alt_text
+                description = alt_text
+
+            im_doc = ImageDocument.ImageDocument(
+                url=full_url,
+                source_urls=[self.url],
+                surrounding_texts=[surrounding_text],
+                descriptions=[description],
+                page_titles=[self.page_title],
+                keywords=keywords)
 
             result.append(im_doc)
 
@@ -199,12 +206,11 @@ def main():
         print('\n\n===============================================')
         print('Url: {0}'.format(i.url))
         print('Source url: {0}'.format(i.source_urls[0]))
-#        print('Image title: {0}'.format(i.title))
         print('page title: {0}'.format(i.page_titles[0]))
-        print(u'Description: {0}'.format(i.description))
+        print(u'Description: {0}'.format(i.descriptions[0]))
         print(u'Keywords: {0}'.format(';'.join(i.keywords)))
         print('==========================')
-        print(i.surrounding_text.encode('utf-8', 'ignore'))
+        print(i.surrounding_texts[0].encode('utf-8', 'ignore'))
         print('===============================================\n\n')
 
 

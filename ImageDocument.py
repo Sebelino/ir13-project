@@ -14,25 +14,24 @@ class ImageDocument:
     source_urls = []
 
     # how much text will be in this string depends on the scraper
-    surrounding_text = []
+    surrounding_texts = []
 
     # image can be used in different contexts.
     # every context can have an alt text, a caption or thelike.
     # all these strings go in here, concatenated, as one description
-    description = []
+    descriptions = []
 
     # titles of the pages the image was found on
     page_titles = []
 
     # keywords
     keywords = []
-    # todo: the structure of this data needs to be determined.
-    # also, it needs to be clear which data
-    def __init__(self, url, source_urls, surrounding_text, description, page_titles, keywords):
+
+    def __init__(self, url, source_urls, surrounding_texts, descriptions, page_titles, keywords):
         self.url = url
         self.source_urls = source_urls
-        self.surrounding_text = surrounding_text
-        self.description = description
+        self.surrounding_texts = surrounding_texts
+        self.descriptions = descriptions
         self.page_titles = page_titles
         self.keywords = keywords
 
@@ -42,17 +41,18 @@ class ImageDocument:
         source_urls = list(s.source_urls)
         page_titles = list(s.page_titles)
         url = s.url
-        description = list(s.description)
-        surrounding_text = list(s.surrounding_text)
+        descriptions= list(s.descriptions)
+        surrounding_texts = list(s.surrounding_texts)
         keywords = list(s.keywords)
-        return cls(url, source_urls, surrounding_text, description, page_titles, keywords)
+        return cls(url, source_urls, surrounding_texts, descriptions, page_titles, keywords)
         
     def merge(self, otherDoc):
         self.source_urls += otherDoc.source_urls
         self.page_titles += otherDoc.page_titles
-        self.surrounding_text += otherDoc.surrounding_text
-        self.description += otherDoc.description
+        self.surrounding_texts += otherDoc.surrounding_texts
+        self.descriptions += otherDoc.description
         self.keywords += otherDoc.keywords
+
 
 class Struct:
     def __init__(self, **kwargs):

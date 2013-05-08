@@ -111,7 +111,7 @@
    <field name="page_titles" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="description" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="surrounding_text" type="text_general" indexed="true" stored="true" multiValued="true"/>
-   <field name="keywords" type="string" indexed="true" stored="true"/>
+   <field name="keywords" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="_version_" type="long" indexed="true" stored="true"/>
 
 
