@@ -24,14 +24,17 @@ class ImageDocument:
     # titles of the pages the image was found on
     page_titles = []
 
+    # keywords
+    keywords = []
     # todo: the structure of this data needs to be determined.
     # also, it needs to be clear which data
-    def __init__(self, url, source_urls, surrounding_text, description, page_titles):
+    def __init__(self, url, source_urls, surrounding_text, description, page_titles, keywords):
         self.url = url
         self.source_urls = source_urls
         self.surrounding_text = surrounding_text
         self.description = description
         self.page_titles = page_titles
+        self.keywords = keywords
 
     @classmethod
     def from_dictionary(cls, d):
@@ -41,13 +44,15 @@ class ImageDocument:
         url = s.url
         description = list(s.description)
         surrounding_text = list(s.surrounding_text)
-        return cls(url, source_urls, surrounding_text, description, page_titles)
+        keywords = list(s.keywords)
+        return cls(url, source_urls, surrounding_text, description, page_titles, keywords)
         
     def merge(self, otherDoc):
         self.source_urls += otherDoc.source_urls
         self.page_titles += otherDoc.page_titles
         self.surrounding_text += otherDoc.surrounding_text
         self.description += otherDoc.description
+        self.keywords += otherDoc.keywords
 
 class Struct:
     def __init__(self, **kwargs):
