@@ -23,6 +23,8 @@
       Query: <input type="text" name="query">
       <input type="submit">
       </form>
+      <h2>Results</h2>
+      Query: <?php echo $_POST["query"]; ?>
     </div>
 
     <div class="bottombox">
