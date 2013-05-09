@@ -19,12 +19,15 @@
 			<p>
       text
 			</p>
-      <form action="results.php" method="post">
-      Query: <input type="text" name="query">
+      <form action="index.php" method="post">
+      Query: <input type="text" name="queryimg">
       <input type="submit">
       </form>
       <h2>Results</h2>
-      Query: <?php echo $_POST["query"]; ?>
+      <?php
+      echo "stnrtsisnt";
+      ?>
+      Query entered: <?php echo $_POST["queryimg"]; ?>
     </div>
 
     <div class="bottombox">
