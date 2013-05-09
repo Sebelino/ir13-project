@@ -50,7 +50,7 @@ class ImageDocument:
         self.source_urls += otherDoc.source_urls
         self.page_titles += otherDoc.page_titles
         self.surrounding_texts += otherDoc.surrounding_texts
-        self.descriptions += otherDoc.description
+        self.descriptions += otherDoc.descriptions
         self.keywords += otherDoc.keywords
 
 
