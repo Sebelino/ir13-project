@@ -1,7 +1,12 @@
+import logging
+import os
 import pickle
+import GlobalConfiguration
 from crawler.Scraper import WikipediaScraper
 
-DUMPFILE_NAME = "image_documents.pickle"
+MIN_DOCUMENTS = 200
+
+DUMPFILE_NAME = os.path.join(GlobalConfiguration.project_root, "crawler/image_documents.pickle")
 
 __author__ = 'daan'
 
@@ -32,7 +37,7 @@ def save_documents(documents, dumpfilename=DUMPFILE_NAME):
 
 
 def main():
-    documents = scrape_documents(20)
+    documents = scrape_documents(MIN_DOCUMENTS)
     save_documents(documents)
 
 

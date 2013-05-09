@@ -1,8 +1,11 @@
 __author__ = 'Oskar Bodemyr'
 
+import GlobalConfiguration
 
-#import pysolr
+# this can be resolved once we add the sunburnt folder to our path in GLobalConfiguration
+# noinspection PyUnresolvedReferences
 import sunburnt
+
 from ImageDocument import ImageDocument
 
 class Document:

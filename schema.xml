@@ -109,8 +109,8 @@
    <field name="url" type="string" indexed="true" stored="true" required="true" multiValued="false" />
    <field name="source_urls" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="page_titles" type="text_general" indexed="true" stored="true" multiValued="true"/>
-   <field name="description" type="text_general" indexed="true" stored="true" multiValued="true"/>
-   <field name="surrounding_text" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="descriptions" type="text_general" indexed="true" stored="true" multiValued="true"/>
+   <field name="surrounding_texts" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="keywords" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="_version_" type="long" indexed="true" stored="true"/>
 

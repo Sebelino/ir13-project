@@ -1,15 +1,19 @@
 #! /usr/bin/env python
 
 # -*- coding: utf-8 -*-
+import logging
+import Keywords
+import MLStripper
+import GlobalConfiguration
 
 __author__ = 'Daan Wynen'
 
 import urllib2
 import urlparse
 from BeautifulSoup import BeautifulSoup
-import MLStripper
 import ImageDocument
-import Keywords
+
+log = logging.getLogger(__file__)
 
 WIKIPEDIA_EN_RANDOM = 'http://en.wikipedia.org/wiki/Special:Random'
 
@@ -36,7 +40,7 @@ class Scraper:
         content = site.read()
         self.url = site.geturl()
         if url != self.url:
-            print("was redirected to {0}".format(self.url))
+            log.debug("was redirected to %s", self.url)
 
         site.close()
 
@@ -69,7 +73,7 @@ class Scraper:
         """
         imgs = self.soup.findAll("img")
 
-        print("Found {0} <img> tags on the page.".format(len(imgs)))
+        log.debug("Found %d <img> tags on the page.", len(imgs))
 
         # replace all images by their respective urls
         for image_node in imgs:
@@ -165,12 +169,12 @@ class WikipediaScraper(Scraper):
 
     def __init__(self, url=WIKIPEDIA_EN_RANDOM):
         if url == WIKIPEDIA_EN_RANDOM:
-            print('visit random wikipedia page')
+            log.debug('visit random wikipedia page')
         Scraper.__init__(self, url)
 
     def extract_caption(self, image_node):
 
-        print("extracting image caption from wikipedia image")
+        log.debug("extracting image caption from wikipedia image")
 
         while (not dict(image_node.attrs).has_key('class') \
                    or image_node['class'] != 'thumbinner') \
@@ -196,25 +200,25 @@ class WikipediaScraper(Scraper):
 
 
 def main():
-    print('scraping ONE page')
+    log.info('scraping ONE page')
     # s = Scraper('http://en.wikipedia.org/wiki/Brooklyn_Technical_High_School')
     # s = Scraper('http://www.csc.kth.se/utbildning/kth/kurser/DD2427/')
     # return
     #s = WikipediaScraper('http://en.wikipedia.org/wiki/Brooklyn_Technical_High_School')
     s = WikipediaScraper()
     for i in s.get_documents():
-        print('\n\n===============================================')
-        print('Url: {0}'.format(i.url))
-        print('Source url: {0}'.format(i.source_urls[0]))
-        print('page title: {0}'.format(i.page_titles[0]))
-        print(u'Description: {0}'.format(i.descriptions[0]))
-        print(u'Keywords: {0}'.format(';'.join(i.keywords)))
-        print('==========================')
-        print(i.surrounding_texts[0].encode('utf-8', 'ignore'))
-        print('===============================================\n\n')
+        log.info('')
+        log.info('')
+        log.info('===============================================')
+        log.info('Url: %s', i.url)
+        log.info('Source url: %s', i.source_urls[0])
+        log.info('page title: %s', i.page_titles[0])
+        log.info(u'Description: %s', i.descriptions[0])
+        log.info(u'Keywords: %s', ';'.join(i.keywords))
+        log.info('==========================')
+        log.info(i.surrounding_texts[0].encode('utf-8', 'ignore'))
+        log.info('===============================================')
 
 
 if __name__ == '__main__':
     main()
-else:
-    print('loaded, but not in __main__')

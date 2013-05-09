@@ -41,7 +41,7 @@ class ImageDocument:
         source_urls = list(s.source_urls)
         page_titles = list(s.page_titles)
         url = s.url
-        descriptions= list(s.descriptions)
+        descriptions = list(s.descriptions)
         surrounding_texts = list(s.surrounding_texts)
         keywords = list(s.keywords)
         return cls(url, source_urls, surrounding_texts, descriptions, page_titles, keywords)

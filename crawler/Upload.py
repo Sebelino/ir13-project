@@ -1,13 +1,10 @@
 #! /usr/bin/env python2.7
 
 import sys
-from crawler import DocumentPickler
+import DocumentPickler
+from crawler import Query
 
-sys.path.append("./sunburnt")
-
-from Query import Query
-
-q = Query('http://localhost:8080/solr/test3')
+q = Query.Query('http://localhost:8080/solr/test3')
 docs = DocumentPickler.retrieve_saved_documents()
 for idx, doc in enumerate(docs):
     q.doc_add(doc)
