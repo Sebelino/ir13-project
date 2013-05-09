@@ -48,8 +48,7 @@ class Query:
 		"""
 		Delete a document in solr by it's image url
 		"""
-		#old code from pysolr
-		#self.solr.delete(url=imageurl)
+		self.solr_interface.delete(imageurl)
 
 	def doc_add(self, doc):
 		"""
