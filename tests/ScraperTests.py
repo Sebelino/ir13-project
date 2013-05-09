@@ -1,6 +1,6 @@
 #! /usr/bin/env python2.7
 from ImageDocument import ImageDocument
-from Scraper import WikipediaScraper
+from crawler.Scraper import WikipediaScraper
 
 __author__ = 'daan'
 

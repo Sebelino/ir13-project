@@ -1,5 +1,5 @@
 import pickle
-from Scraper import WikipediaScraper
+from crawler.Scraper import WikipediaScraper
 
 DUMPFILE_NAME = "image_documents.pickle"
 

@@ -1,10 +1,10 @@
 #! /usr/bin/env python2.7
 
 import sys
+from crawler import DocumentPickler
 
 sys.path.append("./sunburnt")
 
-import DocumentPickler
 from Query import Query
 
 q = Query('http://localhost:8080/solr/test3')

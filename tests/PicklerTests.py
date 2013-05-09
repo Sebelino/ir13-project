@@ -1,10 +1,9 @@
 #! /usr/bin/env python2.7
-from numpy.lib.utils import source
 import os
 
-import DocumentPickler
 import tempfile
 from ImageDocument import ImageDocument
+from crawler import DocumentPickler
 
 
 __author__ = 'daan'
@@ -51,6 +50,8 @@ class DocumentPicklerTests(unittest.TestCase):
         docs = DocumentPickler.retrieve_saved_documents(dumpfilename)
 
         os.remove(dumpfilename)
+
+        self.failUnless(len(docs)==3)
 
         for doc in docs:
             self.failUnless(isinstance(doc, ImageDocument))
