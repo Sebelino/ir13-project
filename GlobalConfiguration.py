@@ -15,4 +15,3 @@ log.info("project root at %s", project_root)
 sunburnt_path = os.path.join(project_root, "sunburnt")
 sys.path.append(sunburnt_path)
 log.debug("sunburnt submodule added to python path.")
-

@@ -1,25 +1,48 @@
 #! /usr/bin/env python2.7
+import logging
 
 import os
 import pickle
 import GlobalConfiguration
 from crawler.Scraper import WikipediaScraper
+from tempfile import NamedTemporaryFile
 
-MIN_DOCUMENTS = 200
+import GlobalConfiguration
+log = logging.getLogger(__name__)
 
 DUMPFILE_NAME = os.path.join(GlobalConfiguration.project_root, "crawler/image_documents.pickle")
 
 __author__ = 'daan'
 
 
-def scrape_documents(n):
-    """scrapes random wikipedia articles until it has at least n
-    ImageDocuments and returns all the resulting ImageDocuments as a list"""
+def get_new_file():
+    pickle_path = os.path.join(GlobalConfiguration.project_root, 'document_pickles')
+    if not os.path.exists(pickle_path):
+        os.makedirs(pickle_path)
+
+    n = NamedTemporaryFile(
+        prefix='imdoc_',
+        dir=pickle_path,
+        delete=False)
+
+    return n
+
+
+def scrape_documents():
+    """scrapes random wikipedia articles into files until you hit Ctrl-C"""
     result = []
 
-    while len(result) < n:
+    doc_count = 0
+
+    while True:
         s = WikipediaScraper()
-        result += s.get_documents()
+        for doc in s.get_documents():
+            temp_file = get_new_file()
+            pickle.dump(doc, temp_file)
+            temp_file.close()
+            doc_count += 1
+            if doc_count % 100 == 0:
+                log.info('%d images and counting...')
 
     return result
 
@@ -38,7 +61,7 @@ def save_documents(documents, dumpfilename=DUMPFILE_NAME):
 
 
 def main():
-    documents = scrape_documents(MIN_DOCUMENTS)
+    documents = scrape_documents()
     save_documents(documents)
 
 
