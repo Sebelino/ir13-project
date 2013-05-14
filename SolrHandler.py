@@ -22,7 +22,7 @@ class Document:
 		self.popularity = 15
 		self.instock = True
 
-class Query:
+class SolrHandler:
 	"""
 	Query-class for searching in solr. (Just trying pysolr really...)
 	"""
@@ -74,7 +74,7 @@ class Query:
 # todo: a lot
 
 if __name__ == '__main__': 
-	q = Query('http://localhost:8080/solr/test2')
+	q = SolrHandler('http://localhost:8080/solr/test2')
 
 	doc1 = ImageDocument("testurl", ["tsource_url1"], ["text1"], ["description1"], ["title1"])
 	q.doc_add(doc1)
