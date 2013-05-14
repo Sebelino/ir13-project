@@ -15,9 +15,7 @@ class Search:
     def search(self, term):
         """Search using the requestHandler named imageSearch.
         If the requestHandler works, so should this query"""
-        return self.solr.search(term, **{
-            'qt': 'imageSearch',
-        })
+        return self.solr.search(term, qt='imageSearch', rows=100)
 
 
 if __name__ == '__main__':
