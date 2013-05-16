@@ -103,6 +103,9 @@ class Scraper:
                     height=h)
 
                 result.append(im_doc)
+
+            except KeyboardInterrupt:
+                return
             except:
                 log.debug("failed to scrape image '%s' from '%s'", image_node["src"], full_url)
                 log.debug(traceback.format_exc())

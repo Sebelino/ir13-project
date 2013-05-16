@@ -15,6 +15,7 @@ __author__ = 'Tryti'
 
 WIKIPEDIA_EN_RANDOM = 'en.wikipedia.org/wiki/Special:Random'
 MAXSCRAPES = 10
+MAX_SCRAPES_PER_WALK = 15
 USER_AGENT = 'Mozilla/21.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/21'
 
 
@@ -44,7 +45,7 @@ class Crawler:
         br.set_handle_equiv(True)
         br.set_handle_redirect(True)
         br.set_handle_referer(True)
-        br.set_handle_robots(False)
+        br.set_handle_robots(True)
 
         # Follows refresh 0 but not hangs on refresh > 0
         br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
@@ -58,9 +59,7 @@ class Crawler:
         br.addheaders = [('User-agent', USER_AGENT)]
 
         seed = self.get_random_url_seed()
-        log.debug('initializing browser to %s', seed)
         self.br = br
-        self.br.open(seed)
 
         return br
 
@@ -69,8 +68,9 @@ class Crawler:
         scraped = 0
         #Scrape until we scraped wanted amount or we fall into a sink
         while maxnr <= 0 or scraped < maxnr:
-
             try:
+
+                walked = 0
 
                 self.br = self.get_browser()
                 log.debug('scraping %s', self.next_link)
@@ -79,7 +79,7 @@ class Crawler:
                 #And add it to the visited list
                 if self.next_link not in self.url_seeds:
                     self.visited.append(self.next_link)
-                    if self.br.viewing_html() :
+                    if self.br.viewing_html():
                         #Get the imageDocuments on the site
                         s = Scraper(self.br.response().read(), self.next_link)
                         image_documents = s.get_image_documents()
@@ -87,6 +87,12 @@ class Crawler:
                         for i in image_documents:
                             yield i
                         scraped += 1
+                        walked +=1
+                        if walked > MAX_SCRAPES_PER_WALK:
+                            log.info('maximum link steps reached, restarting at a root.')
+                            continue
+                    else:
+                        self.br.back()
 
                 next_links = []
                 #Get the links from the site and add them to the
@@ -103,6 +109,12 @@ class Crawler:
                         if temp_link not in self.visited:
                             self.next_link = temp_link
                             break
+                else:
+                    log.info('couldn\'t find link to follow.')
+                    continue
+
+            except KeyboardInterrupt:
+                return
             except:
                 log.debug(traceback.format_exc())
                 sys.exc_clear()
@@ -115,6 +127,9 @@ class Crawler:
             log.debug(traceback.format_exc())
             sys.exc_clear()
             self.br.close()
+
+        except KeyboardInterrupt:
+            return
         except:
             pass
 

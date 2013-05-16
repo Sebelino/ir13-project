@@ -61,6 +61,8 @@ def retrieve_saved_documents():
             result = pickle.load(picklefile)
             picklefile.close()
             yield result
+        except KeyboardInterrupt:
+            return
         except:
             # ignore any error since a single document is not that important
             log.info('Error uploading %s.', dumpfilename)

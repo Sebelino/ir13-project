@@ -34,6 +34,8 @@ for idx, doc in enumerate(documents):
     try:
         q.doc_add(doc)
 
+    except KeyboardInterrupt:
+        sys.exit(0)
     except:
         log.debug(traceback.format_exc())
         sys.exc_clear()
