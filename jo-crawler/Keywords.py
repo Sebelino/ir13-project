@@ -89,7 +89,7 @@ def extract_keywords_grammar(text):
 if __name__ == '__main__':
     text = True
     while text:
-        print ">> ",
+        print ">> "
         text = sys.stdin.readline()
         print extract_keywords_grammar(text.rstrip())
-    
+
