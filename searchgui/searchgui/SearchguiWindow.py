@@ -11,7 +11,6 @@ from gi.repository import Gtk # pylint: disable=E0611
 from gi.repository.GdkPixbuf import Pixbuf
 import logging
 import urllib2
-import gobject
 
 logger = logging.getLogger('searchgui')
 
@@ -19,6 +18,9 @@ from searchgui_lib import Window
 from searchgui.AboutSearchguiDialog import AboutSearchguiDialog
 from searchgui.PreferencesSearchguiDialog import PreferencesSearchguiDialog
 from Search import Search
+
+
+DEFAULT_IMAGE_WIDTH = 100
 
 # See searchgui_lib.Window.py for more details about how this class works
 class SearchguiWindow(Window):
@@ -37,16 +39,27 @@ class SearchguiWindow(Window):
         view = self.ui.image_result_grid
         query = self.ui.query_input.get_text()
         results = s.search(query)
-        model = Gtk.ListStore(Pixbuf,  gobject.TYPE_STRING)
-        view = Gtk.IconView(model)  # Pass the model stored in a ListStore to the GtkIconView
+        model = Gtk.ListStore()
+          # Pass the model stored in a ListStore to the GtkIconView
         view.set_pixbuf_column(0)
         view.set_text_column(1)
-        view.set_selection_mode(Gtk.SELECTION_MULTIPLE)
+       # view.set_selection_mode(Gtk.SELECTION_MULTIPLE)
         view.set_columns(0)
         view.set_item_width(150)
         for result in results:
+            #try:
 
-            print result
+                pixbuf = self.get_image_from_url(result)
+                pix_w = pixbuf.get_width()
+                pix_h = pixbuf.get_height()
+                new_h = (pix_h * DEFAULT_IMAGE_WIDTH) / pix_w # Calculate the scaled height before resizing image
+                scaled_pix = pixbuf.scale_simple(DEFAULT_IMAGE_WIDTH, new_h, 0)
+                model.append((scaled_pix,))
+                logger.debug('ADDED %s', result)
+            #except:
+             #   pass
+
+        view = Gtk.IconView(model)
 
     def get_image_from_url(self, url):
         response = urllib2.urlopen(url)
@@ -56,7 +69,7 @@ class SearchguiWindow(Window):
         f.close()
         response.close()
         image = Gtk.Image()
-        image.set_from_pixbuf(Pixbuf.new_from_file(fname))
-        return image
+        buf = Pixbuf.new_from_file(fname)
+        return buf
 
 
