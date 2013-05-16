@@ -1,0 +1,133 @@
+body{
+    font-size: 14px;
+    font-family: georgia;
+    background-image: url('bakgrund2.png');
+}
+
+li{
+    font-style: italic;
+}
+
+.bigbox{
+    background-color: #FFF5EE; 
+    margin: 8px auto 0% auto;
+    padding: 20px 20px 20px 20px;
+    width: 70%;
+	border-style: outset;
+	border-width: 4px;
+	border-color: #CC7722;
+}
+
+.contentbox{
+    padding: 20px;
+    background-color: #FCFFFE;
+	border-style: outset;
+	border-width: 1px;
+	border-color: #CC7722;
+}
+
+.sitemapbox{
+    float: left;
+	text-align: center;
+    width: 12%;
+    padding-bottom: 20px;
+    background-color: #FCFFFE;
+	border-style: outset;
+	border-width: 4px;
+	border-color: #CC7722;
+	line-height: 250%;
+}
+
+.linksbox{
+    float: right;
+	text-align: center;
+    width: 12%;
+    padding-bottom: 20px;
+    background-color: #FCFFFE;
+	border-style: outset;
+	border-width: 4px;
+	border-color: #CC7722;
+	line-height: 250%;
+}
+
+.bottombox{
+    margin-top: 10px;
+    padding: 10px;
+    background-color: #FCFFFE;
+    font-size: 12px;
+    line-height: 150%;
+	border-style: outset;
+	border-width: 1px;
+	border-color: #CC7722;
+}
+
+.titlebox{
+    margin: 4px auto 8px auto;
+    height: 10%;
+    width: 70%;
+    padding: 8px 20px 8px 20px;
+    background-color: #FCFFFE;
+	border-style: outset;
+	border-width: 4px;
+	border-color: #CC7722;
+}
+
+a{
+	text-decoration: none;
+}
+
+a.sitemapLINK{
+	font-family: fantasy;
+	font-size: 20px;
+	text-decoration: inherit;
+}
+
+a.linksLINK{
+	font-family: fantasy;
+	font-size: 20px;
+	text-decoration: inherit;
+}
+
+a:link{color:#0000FF;}
+a:visited{color:#550055;}
+a:hover{color:#00CC00;}
+a:active{color:#CC00CC;}
+
+h1{
+    font-family: tahoma;
+    text-align: center;
+}
+
+h1.sitemapH1{
+    font-family: inherit;
+	font-size: 30px;
+	text-decoration: underline;
+    text-align: center;
+}
+
+h1.linksH1{
+    font-family: inherit;
+	font-size: 18px;
+	text-decoration: underline;
+    text-align: center;
+}
+
+h3{
+    font-family: verdana;
+    text-align: left;
+}
+
+h4{
+    font-family: verdana;
+    margin-left: 0px;
+}
+
+p{
+    text-align: left;
+    line-height: 150%;
+}
+
+.textemail{
+    color: #400000;
+    font-family: verdana;
+}
