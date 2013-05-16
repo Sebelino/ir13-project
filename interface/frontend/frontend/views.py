@@ -1,6 +1,7 @@
 from django.template.loader import get_template
 from django.template import Context
 from django.http import Http404,HttpResponse
+from django.shortcuts import render
 import datetime
 
 def hello(request):
@@ -8,9 +9,11 @@ def hello(request):
 
 def current_datetime(request):
     now = datetime.datetime.now()
-    t = get_template('index.html')
-    html = t.render(Context({'current_date':now}))
-    return HttpResponse(html)
+    return render(request,'index.html',{'current_date':now})
+
+def searchgui(request):
+    now = datetime.datetime.now()
+    return render(request,'index.html')
 
 def hours_ahead(request,offset):
     try:
