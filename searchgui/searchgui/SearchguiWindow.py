@@ -2,12 +2,13 @@
 ### BEGIN LICENSE
 # This file is in the public domain
 ### END LICENSE
+import gobject
 
 from locale import gettext as _
 
 import pygtk
 pygtk.require('2.0')
-from gi.repository import Gtk # pylint: disable=E0611
+from gi.repository import Gtk# pylint: disable=E0611
 from gi.repository.GdkPixbuf import Pixbuf
 import logging
 import urllib2
@@ -20,7 +21,7 @@ from searchgui.PreferencesSearchguiDialog import PreferencesSearchguiDialog
 from Search import Search
 
 
-DEFAULT_IMAGE_WIDTH = 100
+DEFAULT_IMAGE_WIDTH = 200
 
 # See searchgui_lib.Window.py for more details about how this class works
 class SearchguiWindow(Window):
@@ -34,18 +35,18 @@ class SearchguiWindow(Window):
         self.PreferencesDialog = PreferencesSearchguiDialog
 
         # Code for other initialization actions should be added here.
-    def perform_search(self,sender):
+    def perform_search(self, sender):
         s = Search()
         view = self.ui.image_result_grid
         query = self.ui.query_input.get_text()
         results = s.search(query)
-        model = Gtk.ListStore()
-          # Pass the model stored in a ListStore to the GtkIconView
+        model = Gtk.ListStore(Pixbuf, str)
+        view.set_model(model)
         view.set_pixbuf_column(0)
-        view.set_text_column(1)
-       # view.set_selection_mode(Gtk.SELECTION_MULTIPLE)
-        view.set_columns(0)
-        view.set_item_width(150)
+        # view.set_text_column(1)
+        # view.set_selection_mode(Gtk.SELECTION_MULTIPLE)
+        view.set_columns(-1)
+        #  view.set_item_width(150)
         for result in results:
             #try:
 
@@ -54,12 +55,10 @@ class SearchguiWindow(Window):
                 pix_h = pixbuf.get_height()
                 new_h = (pix_h * DEFAULT_IMAGE_WIDTH) / pix_w # Calculate the scaled height before resizing image
                 scaled_pix = pixbuf.scale_simple(DEFAULT_IMAGE_WIDTH, new_h, 0)
-                model.append((scaled_pix,))
+                model.append([scaled_pix, ''])
                 logger.debug('ADDED %s', result)
             #except:
              #   pass
-
-        view = Gtk.IconView(model)
 
     def get_image_from_url(self, url):
         response = urllib2.urlopen(url)
