@@ -107,6 +107,8 @@
    -->
         
    <field name="url" type="string" indexed="true" stored="true" required="true" multiValued="false" />
+   <field name="height" type="int" indexed="true" stored="true" required="true" multiValued="false" />
+   <field name="width" type="int" indexed="true" stored="true" required="true" multiValued="false" />
    <field name="source_urls" type="string" indexed="true" stored="true" multiValued="true"/>
    <field name="page_titles" type="text_general" indexed="true" stored="true" multiValued="true"/>
    <field name="descriptions" type="text_general" indexed="true" stored="true" multiValued="true"/>
