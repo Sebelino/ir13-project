@@ -9,7 +9,7 @@ log = logging.getLogger(__name__)
 
 
 class Search:
-    def __init__(self, solraddr):
+    def __init__(self, solraddr=GlobalConfiguration.DEFAULT_SOLR_URL):
         self.solr = pysolr.Solr(solraddr, timeout=10)
 
     def search(self, term):

@@ -219,10 +219,11 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkEntry" id="entry1">
+              <object class="GtkEntry" id="query_input">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="invisible_char">●</property>
+                <signal name="activate" handler="perform_search" swapped="no"/>
               </object>
               <packing>
                 <property name="expand">True</property>
@@ -231,7 +232,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button1">
+              <object class="GtkButton" id="search_button">
                 <property name="label" translatable="yes">Search</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
@@ -253,7 +254,16 @@
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkIconView" id="image_result_grid">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="item_orientation">horizontal</property>
+          </object>
+          <packing>
+            <property name="expand">True</property>
+            <property name="fill">True</property>
+            <property name="position">2</property>
+          </packing>
         </child>
         <child>
           <object class="GtkStatusbar" id="statusbar1">

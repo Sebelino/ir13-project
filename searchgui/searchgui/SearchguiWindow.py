@@ -12,6 +12,7 @@ logger = logging.getLogger('searchgui')
 from searchgui_lib import Window
 from searchgui.AboutSearchguiDialog import AboutSearchguiDialog
 from searchgui.PreferencesSearchguiDialog import PreferencesSearchguiDialog
+from Search import Search
 
 # See searchgui_lib.Window.py for more details about how this class works
 class SearchguiWindow(Window):
@@ -20,11 +21,16 @@ class SearchguiWindow(Window):
     def finish_initializing(self, builder): # pylint: disable=E1002
         """Set up the main window"""
         super(SearchguiWindow, self).finish_initializing(builder)
-
+        self.builder = builder
         self.AboutDialog = AboutSearchguiDialog
         self.PreferencesDialog = PreferencesSearchguiDialog
 
         # Code for other initialization actions should be added here.
-    def perform_search(self, sender):
-        print "Hello, World!"
+    def perform_search(self,sender):
+        s = Search()
+        grid = self.ui.image_result_grid
+        query = self.ui.query_input.get_text()
+        results = s.search(query)
+        for result in results:
+            print result
 
