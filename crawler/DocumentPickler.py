@@ -1,11 +1,11 @@
 #! /usr/bin/env python2.7
+
 import glob
 import logging
-
 import os
 import pickle
 import GlobalConfiguration
-from crawler.Scraper import WikipediaScraper
+from crawler.Crawler import Crawler
 from tempfile import NamedTemporaryFile
 
 import GlobalConfiguration
@@ -30,23 +30,27 @@ def get_new_file():
     return n
 
 
-def scrape_documents(min_count=0):
-    """scrapes random wikipedia articles into files until you hit Ctrl-C"""
-    result = []
+def scrape_documents(
+        min_count=0,
+        url_seeds=GlobalConfiguration.DEFAULT_URL_SEEDS):
 
     doc_count = 0
 
-    while True and (min_count == 0 or doc_count < min_count):
-        s = WikipediaScraper()
-        for doc in s.get_documents():
+    s = Crawler(url_seeds)
+    docs = s.crawl(min_count)
+
+    while min_count <= 0 or doc_count < min_count:
+        for doc in docs:
             temp_file = get_new_file()
             pickle.dump(doc, temp_file)
             temp_file.close()
+            log.debug('saved image doc from %s', doc.url)
             doc_count += 1
             if doc_count % 100 == 0:
                 log.info('%d images and counting...', doc_count)
 
-    return result
+    log.info('finished indexing images.')
+    log.info('%d documents indexed', doc_count)
 
 
 def retrieve_saved_documents():
@@ -64,7 +68,9 @@ def retrieve_saved_documents():
 
 
 def main():
-    scrape_documents(100)
+    scrape_documents(
+        min_count=100,
+        url_seeds=GlobalConfiguration.DEFAULT_URL_SEEDS)
 
 
 if __name__ == '__main__':

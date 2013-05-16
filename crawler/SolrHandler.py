@@ -1,9 +1,11 @@
+#! /usr/bin/env python2.7
+
 __author__ = 'Oskar Bodemyr'
 
-
-#import pysolr
+import GlobalConfiguration
 import sunburnt
 from ImageDocument import ImageDocument
+
 
 class Document:
 	"""
@@ -26,7 +28,7 @@ class SolrHandler:
 	"""
 	Query-class for searching in solr. (Just trying pysolr really...)
 	"""
-	def __init__(self, solraddr = 'http://localhost:8080/solr/'):
+	def __init__(self, solraddr = GlobalConfiguration.DEFAULT_SOLR_URL):
 		self.solr_interface = sunburnt.SolrInterface(solraddr)
 		#self.solr = pysolr.Solr(solraddr, timeout=10)
 
@@ -74,9 +76,9 @@ class SolrHandler:
 # todo: a lot
 
 if __name__ == '__main__': 
-	q = SolrHandler('http://localhost:8080/solr/test2')
+	q = SolrHandler('http://localhost:8080/solr/test3')
 
-	doc1 = ImageDocument("testurl", ["tsource_url1"], ["text1"], ["description1"], ["title1"])
+	doc1 = ImageDocument("testurl", ["tsource_url1"], ["text1"], ["description1"], ["title1"], ['keyword2'], 102, 104)
 	q.doc_add(doc1)
-	doc2 = ImageDocument("testurl", ["source_url3"], ["text3"], ["description3"], ["titel3"])
+	doc2 = ImageDocument("testurl", ["source_url3"], ["text3"], ["description3"], ["titel3"], ['keyword1'], 12, 14)
 	q.doc_add(doc2)

@@ -2,117 +2,128 @@
 
 # -*- coding: utf-8 -*-
 import logging
-import Keywords
-import MLStripper
-import GlobalConfiguration
+import sys
 
-__author__ = 'Daan Wynen'
+__author__ = 'Daan Wynen, Jo Tryti'
 
+from BeautifulSoup import BeautifulSoup
+from StringIO import StringIO
+from PIL import Image
 import urllib2
 import urlparse
-from BeautifulSoup import BeautifulSoup
+
+import MLStripper
 import ImageDocument
+import Keywords
+import GlobalConfiguration
+from getImageInfo import getImageInfo
+import traceback
 
-log = logging.getLogger(__file__)
+log = logging.getLogger(__name__)
 
-WIKIPEDIA_EN_RANDOM = 'http://en.wikipedia.org/wiki/Special:Random'
-
-BLACKLIST = [
-    'upload.wikimedia.org/wikipedia/commons/thumb/5/55/WMA_button2b.png/17px-WMA_button2b.png',
-    'bits.wikimedia.org',
-    '/Question_book-new.svg/',
-    '/thumb/b/ba/Flag_of_New_York_City.svg/',
-    'thumb/4/4a/Commons-logo.svg',
-    'Disambig_gray.svg.png'
-]
-
+#Constants
 SURROUNDING_TEXT_TARGET = 200
-
-BROWSER_USER_AGENT = "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:20.0) Gecko/20100101 Firefox/20.0"
+MIN_IMAGE_SIZE = 100
 
 
 class Scraper:
-    def __init__(self, url):
-        self.url = url
+    def __init__(self, content=None, url=None):
+        if url:
+            self.url = url
 
-        req = urllib2.Request(url, headers={'User-Agent': BROWSER_USER_AGENT})
-        site = urllib2.urlopen(req)
-        content = site.read()
-        self.url = site.geturl()
-        if url != self.url:
-            log.debug("was redirected to %s", self.url)
+        if content:
+            #Build the soup
+            self.soup = self.get_relevant_root(BeautifulSoup(content))
+            #set the title
+            title_tag = self.soup.find('title')
+            if title_tag:
+                self.page_title = title_tag.renderContents(None)
+            else:
+                self.page_title = ''
 
-        site.close()
+            # save the raw html of the page but as unicode
+            self.full_text = self.soup.renderContents(None)
 
-        # build the soup first.
-        # this lets us use its encoding detection mechanism to decode the page's content.
-        self.soup = self.get_relevant_root(BeautifulSoup(content))
+            # also save a stripped down version for indexing.
+            self.plaintext = self.strip_html(self.full_text)
 
-        title_tag = self.soup.find('title')
-        if title_tag:
-            self.page_title = title_tag.renderContents(None)
-        else:
-            self.page_title = ''
-
-        # save the raw html of the page but as unicode
-        self.full_text = self.soup.renderContents(None)
-
-        # also save a stripped down version for indexing.
-        self.plaintext = self.strip_html(self.full_text)
-
-    def get_relevant_root(self, soup):
-        return soup
-
-    def strip_html(self, html):
-        result = MLStripper.strip_tags(html)
-        return result
-
-    def get_documents(self):
+    def get_image_documents(self):
         """
-        Returns every image document for this page.
+        Returns the wanted image document form this page.
         """
+        result = []
+        if not self.soup:
+            return result
+
         imgs = self.soup.findAll("img")
-
-        log.debug("Found %d <img> tags on the page.", len(imgs))
 
         # replace all images by their respective urls
         for image_node in imgs:
-            image_node.replaceWith(image_node["src"])
+            image_node.replaceWith(image_node["src"] if image_node.has_key('src') else '')
 
-        flat_text = self.strip_html(self.soup.renderContents(None))
+        flat_text = self.plaintext
 
         result = []
         for image_node in imgs:
-            full_url = urlparse.urljoin(self.url, image_node["src"])
 
-            if self.should_ignore(full_url):
+            if not image_node.has_key('src'):
+                log.debug('found image without src tag!?')
                 continue
 
-            surrounding_text = self.extract_surrounding_text(image_node, flat_text)
-            caption = self.extract_caption(image_node)
-            alt_text = self.extract_alttext(image_node)
+            full_url = urlparse.urljoin(self.url, image_node["src"])
+            # noinspection PyBroadException
+            try:
 
-            keywords = Keywords.extract_keywords_grammar(surrounding_text)
+                feasible, content_type, w, h = self.check_image(full_url)
+                if not feasible:
+                    continue
 
-            description = ''
-            if caption:
-                description = caption
-                if alt_text:
-                    description += " " + alt_text
-            elif alt_text:
-                description = alt_text
+                surrounding_text = self.extract_surrounding_text(image_node, flat_text)
+                caption = self.extract_caption(image_node)
+                alt_text = self.extract_alttext(image_node)
 
-            im_doc = ImageDocument.ImageDocument(
-                url=full_url,
-                source_urls=[self.url],
-                surrounding_texts=[surrounding_text],
-                descriptions=[description],
-                page_titles=[self.page_title],
-                keywords=keywords)
+                keywords = Keywords.extract_keywords_grammar(surrounding_text)
 
-            result.append(im_doc)
+                description = ''
+                if caption:
+                    description = caption
+                    if alt_text:
+                        description += " " + alt_text
+                elif alt_text:
+                    description = alt_text
+
+                im_doc = ImageDocument.ImageDocument(
+                    url=full_url,
+                    source_urls=[self.url],
+                    surrounding_texts=[surrounding_text],
+                    descriptions=[description],
+                    page_titles=[self.page_title],
+                    keywords=keywords,
+                    width=w,
+                    height=h)
+
+                result.append(im_doc)
+            except:
+                log.debug("failed to scrape image '%s' from '%s'", image_node["src"], full_url)
+                log.debug(traceback.format_exc())
+                sys.exc_clear()
 
         return result
+
+    def check_image(self, img_url):
+        '''
+        returns true if we wants to index this image. Checks for image size and if it is a valid image format
+        then returns feasibility, image type and size as a tuple
+        '''
+
+        f = urllib2.urlopen(img_url)
+        (content_type, w, h) = getImageInfo(f)
+        f.close()
+
+        if (w < MIN_IMAGE_SIZE) or (h < MIN_IMAGE_SIZE) or not content_type:
+            return False, content_type, w, h
+        else:
+            return True, content_type, w, h
 
     def extract_surrounding_text(self, image_node, flat_text):
         """
@@ -126,7 +137,10 @@ class Scraper:
         # get teh text preceding and following the image
         # this will discard information if the url occurred more than once.
         # we don't like that so we pretend it didn't happen...
-        (pre, post) = components[0], components[1]
+        if (len(components) > 1):
+            (pre, post) = components[0], components[1]
+        else:
+            (pre, post) = components[0], ''
 
         # split both
         (pre, post) = pre.split(), post.split()
@@ -155,11 +169,13 @@ class Scraper:
         except:
             return None
 
-    def should_ignore(self, url):
-        for string in BLACKLIST:
-            if url.find(string) != -1:
-                return True
-        return False
+    def get_relevant_root(self, soup):
+        #I dont get this
+        return soup
+
+    def strip_html(self, html):
+        result = MLStripper.strip_tags(html)
+        return result
 
 
 class WikipediaScraper(Scraper):
@@ -167,14 +183,7 @@ class WikipediaScraper(Scraper):
     def get_relevant_root(self, soup):
         return soup.find('div', {"id": "content"})
 
-    def __init__(self, url=WIKIPEDIA_EN_RANDOM):
-        if url == WIKIPEDIA_EN_RANDOM:
-            log.debug('visit random wikipedia page')
-        Scraper.__init__(self, url)
-
     def extract_caption(self, image_node):
-
-        log.debug("extracting image caption from wikipedia image")
 
         while (not dict(image_node.attrs).has_key('class') \
                    or image_node['class'] != 'thumbinner') \
@@ -200,25 +209,7 @@ class WikipediaScraper(Scraper):
 
 
 def main():
-    log.info('scraping ONE page')
-    # s = Scraper('http://en.wikipedia.org/wiki/Brooklyn_Technical_High_School')
-    # s = Scraper('http://www.csc.kth.se/utbildning/kth/kurser/DD2427/')
-    # return
-    #s = WikipediaScraper('http://en.wikipedia.org/wiki/Brooklyn_Technical_High_School')
-    s = WikipediaScraper()
-    for i in s.get_documents():
-        log.info('')
-        log.info('')
-        log.info('===============================================')
-        log.info('Url: %s', i.url)
-        log.info('Source url: %s', i.source_urls[0])
-        log.info('page title: %s', i.page_titles[0])
-        log.info(u'Description: %s', i.descriptions[0])
-        log.info(u'Keywords: %s', ';'.join(i.keywords))
-        log.info('==========================')
-        log.info(i.surrounding_texts[0].encode('utf-8', 'ignore'))
-        log.info('===============================================')
-
+    print('No main for Scraper')
 
 if __name__ == '__main__':
     main()
