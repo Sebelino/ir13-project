@@ -10,6 +10,9 @@ class ImageDocument:
 
     url = ''
 
+    width = 0
+    height = 0
+
     # urls of the pages this image was found on
     source_urls = []
 
@@ -27,13 +30,15 @@ class ImageDocument:
     # keywords
     keywords = []
 
-    def __init__(self, url, source_urls, surrounding_texts, descriptions, page_titles, keywords):
+    def __init__(self, url, source_urls, surrounding_texts, descriptions, page_titles, keywords, width, height):
         self.url = url
         self.source_urls = source_urls
         self.surrounding_texts = surrounding_texts
         self.descriptions = descriptions
         self.page_titles = page_titles
         self.keywords = keywords
+        self.width = width
+        self.height = height
 
     @classmethod
     def from_dictionary(cls, d):
@@ -41,10 +46,12 @@ class ImageDocument:
         source_urls = list(s.source_urls)
         page_titles = list(s.page_titles)
         url = s.url
+        width = s.width
+        height = s.heigt
         descriptions= list(s.descriptions)
         surrounding_texts = list(s.surrounding_texts)
         keywords = list(s.keywords)
-        return cls(url, source_urls, surrounding_texts, descriptions, page_titles, keywords)
+        return cls(url, source_urls, surrounding_texts, descriptions, page_titles, keywords, width, height)
         
     def merge(self, otherDoc):
         self.source_urls += otherDoc.source_urls

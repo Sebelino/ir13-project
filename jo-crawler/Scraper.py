@@ -2,6 +2,7 @@
 
 # -*- coding: utf-8 -*-
 import logging
+import sys
 
 __author__ = 'Daan Wynen, Jo Tryti'
 
@@ -15,6 +16,8 @@ import MLStripper
 import ImageDocument
 import Keywords
 import GlobalConfiguration
+from getImageInfo import getImageInfo
+import traceback
 
 log = logging.getLogger(__name__)
 
@@ -51,7 +54,6 @@ class Scraper:
         result = []
         if not self.soup:
             return result
-        'TODO-does this work?'
 
         imgs = self.soup.findAll("img")
 
@@ -59,15 +61,21 @@ class Scraper:
         for image_node in imgs:
             image_node.replaceWith(image_node["src"])
 
-        flat_text = self.strip_html(self.soup.renderContents(None))
-        'TODO-use self.plaintext?'
+        flat_text = self.plaintext
 
         result = []
         for image_node in imgs:
-            try:
-                full_url = urlparse.urljoin(self.url, image_node["src"])
 
-                if not self.check_image(full_url):
+            if not image_node.has_key('src'):
+                log.debug('found image without src tag!?')
+                continue
+
+            full_url = urlparse.urljoin(self.url, image_node["src"])
+            # noinspection PyBroadException
+            try:
+
+                feasible, content_type, w, h = self.check_image(full_url)
+                if not feasible:
                     continue
 
                 surrounding_text = self.extract_surrounding_text(image_node, flat_text)
@@ -90,34 +98,32 @@ class Scraper:
                     surrounding_texts=[surrounding_text],
                     descriptions=[description],
                     page_titles=[self.page_title],
-                    keywords=keywords)
+                    keywords=keywords,
+                    width=w,
+                    height=h)
 
                 result.append(im_doc)
             except:
                 log.debug("failed to scrape image '%s' from '%s'", image_node["src"], full_url)
+                log.debug(traceback.format_exc())
+                sys.exc_clear()
 
         return result
-
 
     def check_image(self, img_url):
         '''
         returns true if we wants to index this image. Checks for image size and if it is a valid image format
+        then returns feasibility, image type and size as a tuple
         '''
+
         f = urllib2.urlopen(img_url)
-        s = StringIO(f.read())
-        image = Image.open(s)
+        (content_type, w, h) = getImageInfo(f)
+        f.close()
 
-        #First we need to check if the requested image is a real image
-        'TODO-check image head'
-
-        #Check if the image is smaler then our minimumsize to remove icons etc
-        (w, h) = image.size
-
-        if (w < MIN_IMAGE_SIZE) or (h < MIN_IMAGE_SIZE):
-            #TO SMALL
-            return False
+        if (w < MIN_IMAGE_SIZE) or (h < MIN_IMAGE_SIZE) or not content_type:
+            return False, content_type, w, h
         else:
-            return True
+            return True, content_type, w, h
 
     def extract_surrounding_text(self, image_node, flat_text):
         """

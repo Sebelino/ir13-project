@@ -15,8 +15,9 @@ import sys
 # make sure we have the right tokenization data local
 # use default storage location for now
 # todo: maybe store this in a specified directory?
-nltk.download('maxent_treebank_pos_tagger')
-nltk.download('brown')
+# note: uncopmment if running for the first time
+# nltk.download('maxent_treebank_pos_tagger')
+# nltk.download('brown')
 
 def extract_keywords_grammar(text):
     '''Uses chunks matching to identify keywords in a tweet'''
