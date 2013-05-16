@@ -778,9 +778,10 @@
   <requestHandler name="/imageSearch" class="solr.SearchHandler" default="true">
     <lst name="defaults">
       <str name="echoParams">explicit</str>
-      <!--<str name="defType">edismax</str>-->
+      <str name="defType">edismax</str>
+      <str name="df">surrounding_texts</str>
       <str name="qf">
-         descriptions^3 page_titles^2 surrounding_texts^1 url^1
+         descriptions^3 keywords^2 page_titles^1.5 surrounding_texts^.8 url^1
       </str>
       <str name="q.alt">*:*</str>
       <str name="rows">10</str>
