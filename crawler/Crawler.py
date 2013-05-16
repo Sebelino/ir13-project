@@ -50,9 +50,9 @@ class Crawler:
         br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
 
         # Want debugging messages?
-        br.set_debug_http(True)
-        br.set_debug_redirects(True)
-        br.set_debug_responses(True)
+        # br.set_debug_http(True)
+        # br.set_debug_redirects(True)
+        # br.set_debug_responses(True)
 
         # User-Agent (this is cheating, ok?)
         br.addheaders = [('User-agent', USER_AGENT)]
