@@ -1,4 +1,7 @@
 # Django settings for websearch project.
+import os
+import sys
+import GlobalConfiguration
 
 DEBUG = True
 TEMPLATE_DEBUG = DEBUG
@@ -36,6 +39,12 @@ TIME_ZONE = 'America/Chicago'
 LANGUAGE_CODE = 'en-us'
 
 SITE_ID = 1
+
+project_root = os.path.dirname(__file__)
+
+sunburnt_path = os.path.join(project_root, "../../")
+sys.path.append(sunburnt_path)
+print("sunburnt submodule added to python path.")
 
 # If you set this to False, Django will make some optimizations so as not
 # to load the internationalization machinery.
