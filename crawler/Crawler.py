@@ -1,5 +1,6 @@
 import cookielib
 import logging
+import re
 import sys
 import traceback
 import urllib2
@@ -14,10 +15,14 @@ log = logging.getLogger(__name__)
 
 __author__ = 'Tryti'
 
+
+gifre = re.compile('.*\\.gif.*')
+
 WIKIPEDIA_EN_RANDOM = 'en.wikipedia.org/wiki/Special:Random'
 MAXSCRAPES = 10
 MAX_SCRAPES_PER_WALK = 15
 USER_AGENT = 'Mozilla/21.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/21'
+
 
 
 class Crawler:
@@ -27,7 +32,6 @@ class Crawler:
         """
         self.visited = []
         self.url_seeds = url_seeds
-        self.next_link = self.get_random_url_seed()
 
     def get_random_url_seed(self):
         return self.url_seeds[random.randint(0, len(self.url_seeds)-1)]
@@ -64,6 +68,9 @@ class Crawler:
         br.open(seed)
         self.br = br
 
+        # dont scrape the seed page...
+        self.next_link = self.get_next_link()
+
         return br
 
     def get_next_link(self):
@@ -71,6 +78,10 @@ class Crawler:
         next_links = []
         #Get the links from the site and add them to the
         for i in self.br.links(url_regex='http'):
+            for regex in GlobalConfiguration.page_block_regexs:
+                if regex.search(i.url):
+                    log.debug('link %s not feasible for scraping.', i.url)
+                    continue
             if i.url != '#page':
                 next_links.append(i.url)
 
@@ -109,11 +120,15 @@ class Crawler:
                             walked += 1
                             if walked > MAX_SCRAPES_PER_WALK:
                                 log.info('maximum link steps reached, restarting at a root.')
-                                continue
+                                raise RuntimeError
                             success = True
                         except urllib2.HTTPError:
                             log.debug(traceback.format_exc())
                             sys.exc_clear()
+                            walked += 1
+                            if walked > MAX_SCRAPES_PER_WALK:
+                                log.info('maximum link steps reached, restarting at a root.')
+                                raise RuntimeError
                             self.br.back()
 
                     log.debug('scraping %s', self.next_link)
@@ -154,7 +169,6 @@ class Crawler:
 
     def random_link(self, links):
         return links.pop(random.randint(0, len(links)-1))
-
 
 
 def main():

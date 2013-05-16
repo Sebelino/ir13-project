@@ -30,7 +30,6 @@ def scrape_documents(min_count=0):
 
 documents = scrape_documents()
 for idx, doc in enumerate(documents):
-    print('hello')
     try:
         q.doc_add(doc)
 

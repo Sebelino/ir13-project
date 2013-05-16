@@ -2,6 +2,7 @@
 
 # -*- coding: utf-8 -*-
 import logging
+import re
 import sys
 
 __author__ = 'Daan Wynen, Jo Tryti'
@@ -22,8 +23,8 @@ import traceback
 log = logging.getLogger(__name__)
 
 #Constants
-SURROUNDING_TEXT_TARGET = 200
-MIN_IMAGE_SIZE = 100
+SURROUNDING_TEXT_TARGET = 100
+MIN_IMAGE_SIZE = 70
 
 
 class Scraper:
@@ -41,12 +42,6 @@ class Scraper:
             else:
                 self.page_title = ''
 
-            # save the raw html of the page but as unicode
-            self.full_text = self.soup.renderContents(None)
-
-            # also save a stripped down version for indexing.
-            self.plaintext = self.strip_html(self.full_text)
-
     def get_image_documents(self):
         """
         Returns the wanted image document form this page.
@@ -61,7 +56,12 @@ class Scraper:
         for image_node in imgs:
             image_node.replaceWith(image_node["src"] if image_node.has_key('src') else '')
 
-        flat_text = self.plaintext
+
+        # save the raw html of the page but as unicode
+        self.full_text = self.soup.renderContents(None)
+
+        # also save a stripped down version for indexing.
+        self.plaintext = self.strip_html(self.full_text)
 
         result = []
         for image_node in imgs:
@@ -79,7 +79,7 @@ class Scraper:
                     log.debug('image %s not feasible for indexing.', full_url)
                     continue
 
-                surrounding_text = self.extract_surrounding_text(image_node, flat_text)
+                surrounding_text = self.extract_surrounding_text(image_node, self.plaintext)
                 caption = self.extract_caption(image_node)
                 alt_text = self.extract_alttext(image_node)
 
@@ -120,7 +120,11 @@ class Scraper:
         then returns feasibility, image type and size as a tuple
         '''
 
-        f = urllib2.urlopen(img_url, timeout=0.2)
+        for regex in GlobalConfiguration.image_block_regexs:
+            if regex.search(img_url):
+                return False, 0, 0, 0
+
+        f = urllib2.urlopen(img_url, timeout=0.7)
         (content_type, w, h) = getImageInfo(f)
         f.close()
 
