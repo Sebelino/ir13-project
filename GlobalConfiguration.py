@@ -18,7 +18,7 @@ DEFAULT_SOLR_URL = 'http://130.229.171.104:8080/solr/test3'
 log.info("default Solr url: %s", DEFAULT_SOLR_URL)
 
 DEFAULT_URL_SEEDS = (
-
+    'http://www.aljazeera.com/',
     'http://svd.se',
     'http://www.cnn.com',
     # 'http://www.coolthings.com/',
