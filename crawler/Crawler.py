@@ -2,6 +2,7 @@ import cookielib
 import logging
 import sys
 import traceback
+import urllib2
 from Scraper import Scraper
 import mechanize
 import ImageDocument
@@ -59,9 +60,31 @@ class Crawler:
         br.addheaders = [('User-agent', USER_AGENT)]
 
         seed = self.get_random_url_seed()
+        log.info('seeding browser with %s', seed)
+        br.open(seed)
         self.br = br
 
         return br
+
+    def get_next_link(self):
+
+        next_links = []
+        #Get the links from the site and add them to the
+        for i in self.br.links(url_regex='http'):
+            if i.url != '#page':
+                next_links.append(i.url)
+
+        self.next_link = None
+
+        #Unless we are at a sink we wants to continue
+        if len(next_links) != 0:
+            random.shuffle(next_links)
+            for temp_link in next_links:
+                if temp_link not in self.visited:
+                    return temp_link
+        else:
+            log.info('couldn\'t find link to follow.')
+            raise RuntimeError
 
     def crawl(self, maxnr=MAXSCRAPES):
 
@@ -73,45 +96,41 @@ class Crawler:
                 walked = 0
 
                 self.br = self.get_browser()
-                log.debug('scraping %s', self.next_link)
-                #Get page contents with Browser
-                self.br.open(self.next_link)
-                #And add it to the visited list
-                if self.next_link not in self.url_seeds:
-                    self.visited.append(self.next_link)
-                    if self.br.viewing_html():
-                        #Get the imageDocuments on the site
-                        s = Scraper(self.br.response().read(), self.next_link)
-                        image_documents = s.get_image_documents()
 
-                        for i in image_documents:
-                            yield i
-                        scraped += 1
-                        walked +=1
-                        if walked > MAX_SCRAPES_PER_WALK:
-                            log.info('maximum link steps reached, restarting at a root.')
-                            continue
-                    else:
-                        self.br.back()
+                while maxnr <= 0 or scraped < maxnr:
 
-                next_links = []
-                #Get the links from the site and add them to the
-                for i in self.br.links(url_regex='http'):
-                    if i.url != '#page':
-                        next_links.append(i.url)
 
-                self.next_link = None
+                    #Get page contents with Browser
+                    success=False
+                    while not success:
+                        try:
+                            self.next_link = self.get_next_link()
+                            self.br.open(self.next_link)
+                            walked += 1
+                            if walked > MAX_SCRAPES_PER_WALK:
+                                log.info('maximum link steps reached, restarting at a root.')
+                                continue
+                            success = True
+                        except urllib2.HTTPError:
+                            log.debug(traceback.format_exc())
+                            sys.exc_clear()
+                            self.br.back()
 
-                #Unless we are at a sink we wants to continue
-                if len(next_links) != 0:
-                    random.shuffle(next_links)
-                    for temp_link in next_links:
-                        if temp_link not in self.visited:
-                            self.next_link = temp_link
-                            break
-                else:
-                    log.info('couldn\'t find link to follow.')
-                    continue
+                    log.debug('scraping %s', self.next_link)
+
+                    #And add it to the visited list
+                    if self.next_link not in self.url_seeds:
+                        self.visited.append(self.next_link)
+                        if self.br.viewing_html():
+                            #Get the imageDocuments on the site
+                            s = Scraper(self.br.response().read(), self.next_link)
+                            image_documents = s.get_image_documents()
+
+                            for i in image_documents:
+                                yield i
+                            scraped += 1
+                        else:
+                            self.br.back()
 
             except KeyboardInterrupt:
                 return

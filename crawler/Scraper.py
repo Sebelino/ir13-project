@@ -76,6 +76,7 @@ class Scraper:
 
                 feasible, content_type, w, h = self.check_image(full_url)
                 if not feasible:
+                    log.debug('image %s not feasible for indexing.', full_url)
                     continue
 
                 surrounding_text = self.extract_surrounding_text(image_node, flat_text)
@@ -119,7 +120,7 @@ class Scraper:
         then returns feasibility, image type and size as a tuple
         '''
 
-        f = urllib2.urlopen(img_url)
+        f = urllib2.urlopen(img_url, timeout=0.2)
         (content_type, w, h) = getImageInfo(f)
         f.close()
 

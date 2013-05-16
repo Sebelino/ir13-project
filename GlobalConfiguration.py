@@ -19,9 +19,10 @@ log.info("default Solr url: %s", DEFAULT_SOLR_URL)
 DEFAULT_URL_SEEDS = (
     'http://reddit.com/',
     # 'http://en.wikipedia.org/wiki/Special:Random',
-    'http://edition.cnn.com/',
+    # 'http://edition.cnn.com/',
     # 'http://www.fotopedia.com/reporter/home/popular',
     'http://slashdot.org/',
+    'http://www.thewebcomiclist.com/latest/',
 )
 log.info("default Solr url: %s", DEFAULT_URL_SEEDS)
 
