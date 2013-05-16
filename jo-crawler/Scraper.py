@@ -1,6 +1,7 @@
 #! /usr/bin/env python
 
 # -*- coding: utf-8 -*-
+import logging
 
 __author__ = 'Daan Wynen, Jo Tryti'
 
@@ -13,6 +14,9 @@ import urlparse
 import MLStripper
 import ImageDocument
 import Keywords
+import GlobalConfiguration
+
+log = logging.getLogger(__name__)
 
 #Constants
 SURROUNDING_TEXT_TARGET = 200
@@ -60,34 +64,37 @@ class Scraper:
 
         result = []
         for image_node in imgs:
-            full_url = urlparse.urljoin(self.url, image_node["src"])
+            try:
+                full_url = urlparse.urljoin(self.url, image_node["src"])
 
-            if not self.check_image(full_url):
-                continue
+                if not self.check_image(full_url):
+                    continue
 
-            surrounding_text = self.extract_surrounding_text(image_node, flat_text)
-            caption = self.extract_caption(image_node)
-            alt_text = self.extract_alttext(image_node)
+                surrounding_text = self.extract_surrounding_text(image_node, flat_text)
+                caption = self.extract_caption(image_node)
+                alt_text = self.extract_alttext(image_node)
 
-            keywords = Keywords.extract_keywords_grammar(surrounding_text)
+                keywords = Keywords.extract_keywords_grammar(surrounding_text)
 
-            description = ''
-            if caption:
-                description = caption
-                if alt_text:
-                    description += " " + alt_text
-            elif alt_text:
-                description = alt_text
+                description = ''
+                if caption:
+                    description = caption
+                    if alt_text:
+                        description += " " + alt_text
+                elif alt_text:
+                    description = alt_text
 
-            im_doc = ImageDocument.ImageDocument(
-                url=full_url,
-                source_urls=[self.url],
-                surrounding_texts=[surrounding_text],
-                descriptions=[description],
-                page_titles=[self.page_title],
-                keywords=keywords)
+                im_doc = ImageDocument.ImageDocument(
+                    url=full_url,
+                    source_urls=[self.url],
+                    surrounding_texts=[surrounding_text],
+                    descriptions=[description],
+                    page_titles=[self.page_title],
+                    keywords=keywords)
 
-            result.append(im_doc)
+                result.append(im_doc)
+            except:
+                log.debug("failed to scrape image '%s' from '%s'", image_node["src"], full_url)
 
         return result
 
@@ -155,6 +162,7 @@ class Scraper:
             return img['alt']
         except:
             return None
+
     def get_relevant_root(self, soup):
         #I dont get this
         return soup
