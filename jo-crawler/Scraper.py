@@ -18,6 +18,7 @@ import Keywords
 SURROUNDING_TEXT_TARGET = 200
 MIN_IMAGE_SIZE = 100
 
+
 class Scraper:
     def __init__(self, content=None, url=None):
         if url:
@@ -38,7 +39,6 @@ class Scraper:
 
             # also save a stripped down version for indexing.
             self.plaintext = self.strip_html(self.full_text)
-
 
     def get_image_documents(self):
         """
@@ -158,7 +158,6 @@ class Scraper:
     def get_relevant_root(self, soup):
         #I dont get this
         return soup
-
 
     def strip_html(self, html):
         result = MLStripper.strip_tags(html)
