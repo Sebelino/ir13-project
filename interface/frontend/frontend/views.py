@@ -8,7 +8,7 @@ def hello(request):
 
 def current_datetime(request):
     now = datetime.datetime.now()
-    t = get_template('interface.html')
+    t = get_template('index.html')
     html = t.render(Context({'current_date':now}))
     return HttpResponse(html)
 
