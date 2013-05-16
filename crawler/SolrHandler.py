@@ -7,23 +7,6 @@ import sunburnt
 from ImageDocument import ImageDocument
 
 
-class Document:
-	"""
-	Just a simple test class to use with the Solr example 
-	"""
-	def __init__(self, nr, name, manu):
-		self.id = nr
-		self.sku = ""
-		self.name = name
-		self.manu = manu
-		self.cat = ""
-		self.features = ""
-		self.includes = ""
-		self.weight = 1.5
-		self.price = 1234
-		self.popularity = 15
-		self.instock = True
-
 class SolrHandler:
 	"""
 	Query-class for searching in solr. (Just trying pysolr really...)
