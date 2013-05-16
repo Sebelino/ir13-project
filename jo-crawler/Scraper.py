@@ -59,7 +59,7 @@ class Scraper:
 
         # replace all images by their respective urls
         for image_node in imgs:
-            image_node.replaceWith(image_node["src"])
+            image_node.replaceWith(image_node["src"] if image_node.has_key('src') else '')
 
         flat_text = self.plaintext
 

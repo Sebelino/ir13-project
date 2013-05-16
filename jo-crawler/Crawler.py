@@ -1,61 +1,109 @@
+import cookielib
+import logging
 from Scraper import Scraper
-from mechanize import Browser
+import mechanize
 import ImageDocument
 import random
+import GlobalConfiguration
+
+log = logging.getLogger(__name__)
 
 
 __author__ = 'Tryti'
 
 WIKIPEDIA_EN_RANDOM = 'en.wikipedia.org/wiki/Special:Random'
 MAXSCRAPES = 10
+USER_AGENT = 'Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.9.0.1) Gecko/2008071615 Fedora/3.0.1-1.fc9 Firefox/3.0.1'
 
 class Crawler:
-    def __init__(self, headurl, maxnr=MAXSCRAPES):
+    def __init__(self, headurl):
         """
         Starts to crawl from the headurl and continues at random
         """
         self.visited = []
-        self.maxnr = maxnr
+        self.headurl = headurl
         self.next_link = headurl
 
-    def crawl(self):
-        #This is the browser we use
-        self.br = Browser()
+    def get_browser(self):
+        # shamelessly stolen from http://stockrt.github.io/p/emulating-a-browser-in-python-with-mechanize/
+
+        # Browser
+        br = mechanize.Browser()
+
+        # Cookie Jar
+        cj = cookielib.LWPCookieJar()
+        br.set_cookiejar(cj)
+
+        # Browser options
+        br.set_handle_equiv(True)
+        br.set_handle_gzip(True)
+        br.set_handle_redirect(True)
+        br.set_handle_referer(True)
+        br.set_handle_robots(True)
+
+        # Follows refresh 0 but not hangs on refresh > 0
+        br.set_handle_refresh(mechanize._http.HTTPRefreshProcessor(), max_time=1)
+
+        # Want debugging messages?
+        #br.set_debug_http(True)
+        #br.set_debug_redirects(True)
+        #br.set_debug_responses(True)
+
+        # User-Agent (this is cheating, ok?)
+        br.addheaders = [('User-agent', USER_AGENT)]
+
+        br.open(self.headurl)
+        self.current_link_depth = 0;
+
+        return br
+
+    def crawl(self, maxnr=MAXSCRAPES):
+
+        self.br = self.get_browser()
 
         scraped = 0
-        #Scrape untill we scraped wanted amount or we fall into a sink
-        while (scraped < self.maxnr) and (self.next_link):
-            #Get page contents with Browser
-            self.br.open(self.next_link)
-            #And add it to the visited list
-            self.visited.append(self.next_link)
+        #Scrape until we scraped wanted amount or we fall into a sink
+        while maxnr > 0 and scraped < maxnr:
 
-            #if its html then we wants to scrape it
-            if self.br.viewing_html() :
-                #Get the imageDocuments on the site
-                s = Scraper(self.br.response().read(), self.next_link)
-                image_documents = s.get_image_documents()
+            try:
+                log.debug('scraping %s', self.next_link)
+                #Get page contents with Browser
+                self.br.open(self.next_link)
+                #And add it to the visited list
+                if self.next_link != self.headurl:
+                    self.visited.append(self.next_link)
 
-                for i in image_documents:
-                    yield i
-                scraped+=1
-            
-            next_links = []
-            #Get the links from the site and add them to the 
-            for i in self.br.links(url_regex='http'):
-                if (i.url != '#page'):
-                    next_links.append(i.url)
+                #if its html then we wants to scrape it
+                if self.next_link != self.headurl:
+                    if self.br.viewing_html() :
+                        #Get the imageDocuments on the site
+                        s = Scraper(self.br.response().read(), self.next_link)
+                        image_documents = s.get_image_documents()
 
-            self.next_link = None
+                        for i in image_documents:
+                            yield i
+                        scraped += 1
 
-            #Unless we are at a sink we wants to continue
-            if(len(next_links) != 0):
-                while not self.next_link:
-                    temp_link = self.random_link(next_links)
-                    if (temp_link in self.visited):
-                        self.next_link = None
-                    else:
-                        self.next_link = temp_link
+                next_links = []
+                #Get the links from the site and add them to the
+                for i in self.br.links(url_regex='http'):
+                    if i.url != '#page':
+                        next_links.append(i.url)
+
+                self.next_link = None
+
+                #Unless we are at a sink we wants to continue
+                if len(next_links) != 0:
+                    random.shuffle(next_links)
+                    for temp_link in next_links:
+                        if temp_link not in self.visited:
+                            self.next_link = temp_link
+                            break
+            except:
+                try: self.br.close()
+                except: pass
+                self.br = self.get_browser()
+                self.next_link = self.headurl
     
         self.br.close() 
 
