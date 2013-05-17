@@ -1,1 +1,0 @@
-../../GlobalConfiguration.py

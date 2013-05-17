@@ -1,8 +1,0 @@
-<glade-catalog name="searchgui_window" domain="glade-3" 
-               depends="gtk+" version="1.0">
-  <glade-widget-classes>
-    <glade-widget-class title="Searchgui Window" name="SearchguiWindow" 
-                        generic-name="SearchguiWindow" parent="GtkWindow"
-                        icon-name="widget-gtk-window"/>
-  </glade-widget-classes>
-</glade-catalog>
