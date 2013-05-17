@@ -1,8 +1,0 @@
-[Desktop Entry]
-_Name=Searchgui
-_Comment=Searchgui application
-Categories=GNOME;Utility;
-Exec=searchgui
-Icon=searchgui
-Terminal=false
-Type=Application

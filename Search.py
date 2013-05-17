@@ -23,7 +23,7 @@ class Search:
 
 
 if __name__ == '__main__':
-    s = Search('http://localhost:8080/solr/test3/')
+    s = Search()
     querystring = ""
     while querystring != "exit":
         querystring = raw_input("What would you like to search for? (exit-command: exit)\n>")

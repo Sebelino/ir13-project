@@ -258,6 +258,7 @@
             <property name="visible">True</property>
             <property name="can_focus">True</property>
             <property name="item_orientation">horizontal</property>
+            <property name="tooltip_column">2</property>
           </object>
           <packing>
             <property name="expand">True</property>
@@ -291,6 +292,20 @@
             <property name="fill">True</property>
             <property name="pack_type">end</property>
             <property name="position">3</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkButton" id="more_results_button">
+            <property name="label" translatable="yes">Get more results</property>
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+            <property name="receives_default">True</property>
+            <signal name="clicked" handler="get_next_ten" swapped="no"/>
+          </object>
+          <packing>
+            <property name="expand">False</property>
+            <property name="fill">False</property>
+            <property name="position">4</property>
           </packing>
         </child>
       </object>
