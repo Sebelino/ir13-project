@@ -3,6 +3,7 @@
 <head>
     <title>stuff search</title>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="/static/clippy.css" media="all">
     <script type="text/javascript" language="javascript">
         jQuery.fn.center = function () {
         this.css("position","absolute");
@@ -17,7 +18,7 @@
         $("#background").css({"opacity" : "0.7"})
         .fadeIn("slow");
 
-        $("#large").html("<img src='"+$(this).parent().attr("href")+"' alt='"+$(this).attr("alt")+"'/><br/>"+$(this).attr("rel")+"")
+        $("#large").html("<img src='"+$(this).parent().attr("href")+"' alt='"+$(this).attr("alt")+"'/>")
         .center()
         .fadeIn("slow");
 
@@ -91,6 +92,21 @@
     <div id="large"></div>
     <div id="background"></div>
 </div>
+
+
+<!-- Add these scripts to  the bottom of the page -->
+
+<!-- Clippy.js -->
+<script src="/static/clippy.min.js"></script>
+
+<!-- Init script -->
+<script type="text/javascript">
+    clippy.load('{{ clippyjs_agent }}', function(agent){
+    // do anything with the loaded agent
+    agent.show();
+    });
+</script>
+
 
 </body>
 </html>
