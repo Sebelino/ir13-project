@@ -24,7 +24,8 @@ log = logging.getLogger(__name__)
 
 #Constants
 SURROUNDING_TEXT_TARGET = 100
-MIN_IMAGE_SIZE = 70
+MIN_IMAGE_WIDTH = 200
+MIN_IMAGE_HEIGHT = 100
 
 
 class Scraper:
@@ -128,7 +129,7 @@ class Scraper:
         (content_type, w, h) = getImageInfo(f)
         f.close()
 
-        if (w < MIN_IMAGE_SIZE) or (h < MIN_IMAGE_SIZE) or not content_type:
+        if (w < MIN_IMAGE_WIDTH) or (h < MIN_IMAGE_HEIGHT) or not content_type:
             return False, content_type, w, h
         else:
             return True, content_type, w, h
